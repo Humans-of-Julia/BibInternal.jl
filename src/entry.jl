@@ -32,12 +32,13 @@ struct Entry
     fields::EntryFields
 end
 
+# TODO: check types
 # External constructor
 function Entry(
     kind::AbstractString,
     key::AbstractString,
     fieldList::Vector{Tuple{String,String}},
-    rule::AbstractRulesSet = EmptyRules()
+    rule::AbstractRulesSet=EmptyRules()
     )
     fields = EntryFields()
     for elt in fieldList
