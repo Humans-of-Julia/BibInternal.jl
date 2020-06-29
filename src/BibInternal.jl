@@ -1,5 +1,7 @@
 module BibInternal
 
+export Entry
+
 # Abstract types to handle bibliographies items
 abstract type AbstractRule end
 abstract type AbstractRulesSet end

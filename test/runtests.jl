@@ -19,3 +19,5 @@ entry = BibInternal.Entry(
 )
 
 println(entry)
+
+println(typeof(BibInternal.bibtex_rules))

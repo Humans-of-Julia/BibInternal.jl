@@ -113,17 +113,17 @@ function generate_bibtex_rules()
             :techreport,
             :unpublished
         ]
-        rules[(entry, :chapterfield)] = IgnoredRule()
+        rules[(entry, :chapter)] = IgnoredRule()
     end
     for entry in [
             :incollection
         ]
-        rules[(entry, :chapterfield)] = OptionalRule()
+        rules[(entry, :chapter)] = OptionalRule()
     end
     for entry in [
             :inbook
         ]
-        rules[(entry, :chapterfield)] = InclusivelyRequiredRule([:pages])
+        rules[(entry, :chapter)] = InclusivelyRequiredRule([:pages])
     end
 
     # Rules for CrossRefField
@@ -564,4 +564,21 @@ function generate_bibtex_rules()
     end
 
     return rules
+end
+
+const bibtex_rules = generate_bibtex_rules()
+
+function list_rules(entry::Symbol)
+    required = Vector{Symbol}()
+    optional = Vector{Symbol}()
+
+    for field in BibInternal.fields
+        r = BibInternal.bibtex_rules[(:article, field)]
+        if r == RequiredRule()
+            push!(required, field)
+        elseif r == OptionalRule()
+            push!(optional, field)
+        end
+    end
+    return required, optional
 end
