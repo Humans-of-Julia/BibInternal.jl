@@ -1,6 +1,6 @@
 module BibInternal
 
-export Entry, bibtex_rules
+export AbstractEntry, bibtex_rules
 
 # Abstract types to handle bibliographies items
 abstract type AbstractRule end

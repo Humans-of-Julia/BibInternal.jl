@@ -279,7 +279,7 @@ struct Booklet <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(title, address, author, howpublished, key, month, note, year, other)
+        return new(id, title, address, author, howpublished, key, month, note, year, other)
     end
 
 end
@@ -981,26 +981,26 @@ end
 
 function Proceedings(
     id::AbstractString,
-        title::AbstractString,
-        year::AbstractString;
-        address::AbstractString="",
-        editor::AbstractString="",
-        key::AbstractString="",
-        month::AbstractString="",
-        note::AbstractString="",
-        number::AbstractString="", # shared with volume
-        organization::AbstractString="",
-        publisher::AbstractString="",
-        series::AbstractString="",
-        volume::AbstractString="", # shared with number
-        other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
-        )
+    title::AbstractString,
+    year::AbstractString;
+    address::AbstractString="",
+    editor::AbstractString="",
+    key::AbstractString="",
+    month::AbstractString="",
+    note::AbstractString="",
+    number::AbstractString="", # shared with volume
+    organization::AbstractString="",
+    publisher::AbstractString="",
+    series::AbstractString="",
+    volume::AbstractString="", # shared with number
+    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    )
     Proceedings(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, other)
 end
 
 function Proceedings(id::AbstractString, d::Dict{AbstractString,AbstractString})
     title = get_delete(d, "title")
-    year = get_delete(d, "title")
+    year = get_delete(d, "year")
     address = get_delete(d, "address")
     editor = get_delete(d, "editor")
     key = get_delete(d, "key")
@@ -1090,7 +1090,7 @@ function TechReport(id::AbstractString, d::Dict{AbstractString,AbstractString})
     author = get_delete(d, "author")
     institution = get_delete(d, "institution")
     title = get_delete(d, "title")
-    year = get_delete(d, "title")
+    year = get_delete(d, "year")
     address = get_delete(d, "address")
     key = get_delete(d, "key")
     month = get_delete(d, "month")
@@ -1106,7 +1106,7 @@ struct Unpublished <: AbstractEntry
 
     # Required
     author::AbstractString
-    note::AbstractString
+    note::AbstractString # TODO; is it required?
     title::AbstractString
 
     # Optional
@@ -1131,9 +1131,9 @@ struct Unpublished <: AbstractEntry
         if author == ""
             push!(errors, "author")
         end
-        if note == ""
-            push!(errors, "note")
-        end
+        # if note == ""
+        #     push!(errors, "note")
+        # end
         if title == ""
             push!(errors, "title")
         end
