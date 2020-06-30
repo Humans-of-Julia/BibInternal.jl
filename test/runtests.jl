@@ -1,5 +1,6 @@
 using BibInternal
 using Test
+import BibInternal.BibTeX
 
 fields = [
     ("title",
@@ -21,3 +22,9 @@ entry = BibInternal.Entry(
 println(entry)
 
 println(typeof(BibInternal.bibtex_rules))
+
+try 
+    BibInternal.BibTeX.Article("", "", "", "", "")
+catch e
+    @test true
+end

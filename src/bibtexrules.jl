@@ -573,7 +573,7 @@ function list_rules(entry::Symbol)
     optional = Vector{Symbol}()
 
     for field in BibInternal.fields
-        r = BibInternal.bibtex_rules[(:article, field)]
+        r = BibInternal.bibtex_rules[(entry, field)]
         if r == RequiredRule()
             push!(required, field)
         elseif r == OptionalRule()
