@@ -23,8 +23,9 @@ println(entry)
 
 println(typeof(BibInternal.bibtex_rules))
 
+# TODO: make better error testing
 try 
-    BibInternal.BibTeX.Article("", "", "", "", "")
+    BibInternal.BibTeX.Article("id","", "", "", "", "")
 catch e
     @test true
 end
