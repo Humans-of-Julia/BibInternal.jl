@@ -12,7 +12,31 @@ function make_bibtex_entry(
     )
     if type == "article"
         return Article(id, fields)
+    elseif type == "book"
+        return Book(id, fields)
+    elseif type == "booklet"
+        return Booklet(id, fields)
+    elseif type == "inbook"
+        return InBook(id, fields)
+    elseif type == "incollection"
+        return InCollection(id, fields)
+    elseif type == "inproceedings"
+        return InProceedings(id, fields)
+    elseif type == "manual"
+        return Manual(id, fields)
+    elseif type == "masterthesis"
+        return MasterThesis(id, fields)
+    elseif type == "phdthesis"
+        return PhDThesis(id, fields)
+    elseif type == "proceedings"
+        return Proceedings(id, fields)
+    elseif type == "techreport"
+        return TechReport(id, fields)
+    elseif type == "unpublished"
+        return Unpublished(id, fields)
     end
+    # default
+    return Misc(id, fields)
 end
 
 function get_delete(d::Dict{AbstractString,AbstractString}, key::AbstractString)
