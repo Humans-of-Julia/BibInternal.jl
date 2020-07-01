@@ -1,7 +1,5 @@
 module BibInternal
 
-export AbstractEntry, bibtex_rules
-
 # Abstract types to handle bibliographies items
 abstract type AbstractRule end
 abstract type AbstractRulesSet end
@@ -15,7 +13,6 @@ abstract type AbstractEntry end
 # Includes
 include("field.jl")
 include("entry.jl")
-include("rule.jl") # includes sub rules files
 include("bibtex.jl")
 
 end # module
