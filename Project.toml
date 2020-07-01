@@ -2,3 +2,6 @@ name = "BibInternal"
 uuid = "2027ae74-3657-4b95-ae00-e2f7d55c3e64"
 authors = ["azzaare"]
 version = "0.1.0"
+
+[compat]
+julia = "^1.4"
