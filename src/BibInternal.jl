@@ -1,18 +1,16 @@
 module BibInternal
 
-# Abstract types to handle bibliographies items
-abstract type AbstractRule end
-abstract type AbstractRulesSet end
-
-# EmptyRules set
-struct EmptyRules <: AbstractRulesSet end
-
 # Abstract Entry type
 abstract type AbstractEntry end
 
+# Generic Entry type (any fields is accepted without check nor rules)
+struct GenericEntry
+    fields::Dict{String,String}
+end
+
 # Includes
-include("field.jl")
-include("entry.jl")
+include("constant.jl")
+include("utilities.jl")
 include("bibtex.jl")
 
 end # module

@@ -6,9 +6,9 @@ export Article, Book, Booklet, InBook, InCollection, InProceedings, Manual, Mast
 export make_bibtex_entry
 
 function make_bibtex_entry(
-    type::AbstractString,
-    id::AbstractString,
-    fields::Dict{AbstractString,AbstractString}
+    type::String,
+    id::String,
+    fields::Dict{String,String}
     )
     if type == "article"
         return Article(id, fields)
@@ -20,7 +20,7 @@ function make_bibtex_entry(
         return InBook(id, fields)
     elseif type == "incollection"
         return InCollection(id, fields)
-    elseif type == "inproceedings"
+    elseif type == "inproceedings" || type == "conference"
         return InProceedings(id, fields)
     elseif type == "manual"
         return Manual(id, fields)
@@ -39,7 +39,7 @@ function make_bibtex_entry(
     return Misc(id, fields)
 end
 
-function get_delete(d::Dict{AbstractString,AbstractString}, key::AbstractString)
+function get_delete(d::Dict{String,String}, key::String)
     ans = get(d, key, "")
     delete!(d, key)
     return ans
@@ -47,42 +47,42 @@ end
 
 struct Article <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required fields
-    author::AbstractString
-    journal::AbstractString
-    title::AbstractString
-    volume::AbstractString
-    year::AbstractString
+    author::String
+    journal::String
+    title::String
+    volume::String
+    year::String
 
     # Optional fields
-    doi::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString
-    pages::AbstractString
+    doi::String
+    key::String
+    month::String
+    note::String
+    number::String
+    pages::String
 
     # Other fields
-    other::Dict{AbstractString,AbstractString}
+    fields::Dict{String,String}
 
     function Article(
-        id::AbstractString,
-        author::AbstractString,
-        journal::AbstractString,
-        title::AbstractString,
-        volume::AbstractString,
-        year::AbstractString,
-        doi::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString,
-        pages::AbstractString,
-        other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+        id::String,
+        author::String,
+        journal::String,
+        title::String,
+        volume::String,
+        year::String,
+        doi::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String,
+        pages::String,
+        fields::Dict{String,String}=Dict{String,String}()
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -101,27 +101,27 @@ struct Article <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, journal, title, volume, year, doi, key, month, note, number, pages, other)            
+        return new(id, author, journal, title, volume, year, doi, key, month, note, number, pages, fields)            
     end
 end
 function Article(
-    id::AbstractString,
-    author::AbstractString,
-    journal::AbstractString,
-    title::AbstractString,
-    volume::AbstractString,
-    year::AbstractString;
-    doi::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="",
-    pages::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    journal::String,
+    title::String,
+    volume::String,
+    year::String;
+    doi::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="",
+    pages::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    Article(id, author, journal, title, volume, year, doi, key, month, note, number, pages, other)
+    Article(id, author, journal, title, volume, year, doi, key, month, note, number, pages, fields)
 end
-function Article(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Article(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     journal = get_delete(d, "journal")
     title = get_delete(d, "title")
@@ -140,48 +140,48 @@ end
 
 struct Book <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString # shared with editor
-    editor::AbstractString # shared with author
-    publisher::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String # shared with editor
+    editor::String # shared with author
+    publisher::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    edition::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString # shared with volume
-    series::AbstractString
-    url::AbstractString
-    volume::AbstractString # shared with number
+    address::String
+    edition::String
+    key::String
+    month::String
+    note::String
+    number::String # shared with volume
+    series::String
+    url::String
+    volume::String # shared with number
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function Book(
-        id::AbstractString,
-        author::AbstractString, # shared with editor
-        editor::AbstractString, # shared with author
-        publisher::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        edition::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString, # shared with volume
-        series::AbstractString,
-        url::AbstractString,
-        volume::AbstractString, # shared with number
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String, # shared with editor
+        editor::String, # shared with author
+        publisher::String,
+        title::String,
+        year::String,
+        address::String,
+        edition::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String, # shared with volume
+        series::String,
+        url::String,
+        volume::String, # shared with number
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == editor == ""
             push!(errors, "author/editor")
         end
@@ -197,32 +197,32 @@ struct Book <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, editor, publisher, title, year, address, edition, key, month, note, number, series, url, volume, other)
+        return new(id, author, editor, publisher, title, year, address, edition, key, month, note, number, series, url, volume, fields)
     end
 end
 
 function Book(
-    id::AbstractString,
-    author::AbstractString, # shared with editor
-    editor::AbstractString, # shared with author
-    publisher::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    edition::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="", # shared with volume
-    series::AbstractString="",
-    url::AbstractString="",
-    volume::AbstractString="", # shared with number
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String, # shared with editor
+    editor::String, # shared with author
+    publisher::String,
+    title::String,
+    year::String;
+    address::String="",
+    edition::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="", # shared with volume
+    series::String="",
+    url::String="",
+    volume::String="", # shared with number
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    Book(id, author, editor, publisher, title, year, address, edition, key, month, note, number, series, url, volume, other)
+    Book(id, author, editor, publisher, title, year, address, edition, key, month, note, number, series, url, volume, fields)
 end
 
-function Book(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Book(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     editor = get_delete(d, "editor")
     publisher = get_delete(d, "publisher")
@@ -243,63 +243,63 @@ end
 
 struct Booklet <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    title::AbstractString
+    title::String
 
     # Optional
-    address::AbstractString
-    author::AbstractString
-    howpublished::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    year::AbstractString
+    address::String
+    author::String
+    howpublished::String
+    key::String
+    month::String
+    note::String
+    year::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function Booklet(
-        id::AbstractString,
-        title::AbstractString,
-        address::AbstractString,
-        author::AbstractString,
-        howpublished::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        year::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        title::String,
+        address::String,
+        author::String,
+        howpublished::String,
+        key::String,
+        month::String,
+        note::String,
+        year::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if title == ""
             push!(errors, "title")
         end
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, address, author, howpublished, key, month, note, year, other)
+        return new(id, title, address, author, howpublished, key, month, note, year, fields)
     end
 
 end
 
 function Booklet(
-    id::AbstractString,
-    title::AbstractString;
-    address::AbstractString="",
-    author::AbstractString="",
-    howpublished::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    year::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    title::String;
+    address::String="",
+    author::String="",
+    howpublished::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    year::String="",
+    fields::Dict{String,String}=Dict{String,String}()
 )
-    Booklet(id, title, address, author, howpublished, key, month, note, year, other)
+    Booklet(id, title, address, author, howpublished, key, month, note, year, fields)
 end
 
-function Booklet(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Booklet(id::String, d::Dict{String,String})
     title = get_delete(d, "title")
     address = get_delete(d, "address")
     author = get_delete(d, "author")
@@ -313,52 +313,52 @@ end
 
 struct InBook <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString # shared with editor
-    chapter::AbstractString # shared with pages
-    editor::AbstractString # shared with author
-    pages::AbstractString # shared with chapter
-    publisher::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String # shared with editor
+    chapter::String # shared with pages
+    editor::String # shared with author
+    pages::String # shared with chapter
+    publisher::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    edition::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString # shared with volume
-    series::AbstractString
-    type::AbstractString
-    volume::AbstractString
+    address::String
+    edition::String
+    key::String
+    month::String
+    note::String
+    number::String # shared with volume
+    series::String
+    type::String
+    volume::String
     
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function InBook(
-        id::AbstractString,
-        author::AbstractString, # shared with editor
-        chapter::AbstractString, # shared with pages
-        editor::AbstractString, # shared with author
-        pages::AbstractString, # shared with chapter
-        publisher::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        edition::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString, # shared with volume
-        series::AbstractString,
-        type::AbstractString,
-        volume::AbstractString, # shared with number
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String, # shared with editor
+        chapter::String, # shared with pages
+        editor::String, # shared with author
+        pages::String, # shared with chapter
+        publisher::String,
+        title::String,
+        year::String,
+        address::String,
+        edition::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String, # shared with volume
+        series::String,
+        type::String,
+        volume::String, # shared with number
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == editor == ""
             push!(errors, "author/editor")
         end
@@ -377,34 +377,34 @@ struct InBook <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, chapter, editor, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, other)
+        return new(id, author, chapter, editor, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, fields)
     end
 end
 
 function InBook(
-    id::AbstractString,
-    author::AbstractString, # shared with editor
-    chapter::AbstractString, # shared with pages
-    editor::AbstractString, # shared with author
-    pages::AbstractString, # shared with chapter
-    publisher::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    edition::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="", # shared with volume
-    series::AbstractString="",
-    type::AbstractString="",
-    volume::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String, # shared with editor
+    chapter::String, # shared with pages
+    editor::String, # shared with author
+    pages::String, # shared with chapter
+    publisher::String,
+    title::String,
+    year::String;
+    address::String="",
+    edition::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="", # shared with volume
+    series::String="",
+    type::String="",
+    volume::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    InBook(id, author, chapter, editor, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, other)
+    InBook(id, author, chapter, editor, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, fields)
 end
 
-function InBook(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function InBook(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     chapter = get_delete(d, "chapter")
     editor = get_delete(d, "editor")
@@ -426,54 +426,54 @@ end
 
 struct InCollection <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    booktitle::AbstractString
-    publisher::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    booktitle::String
+    publisher::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    chapter::AbstractString
-    edition::AbstractString
-    editor::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString # shared with volume
-    pages::AbstractString
-    series::AbstractString
-    type::AbstractString
-    volume::AbstractString # shared with volume
+    address::String
+    chapter::String
+    edition::String
+    editor::String
+    key::String
+    month::String
+    note::String
+    number::String # shared with volume
+    pages::String
+    series::String
+    type::String
+    volume::String # shared with volume
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function InCollection(
-        id::AbstractString,
-        author::AbstractString,
-        booktitle::AbstractString,
-        publisher::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        chapter::AbstractString,
-        edition::AbstractString,
-        editor::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString, # shared with volume
-        pages::AbstractString,
-        series::AbstractString,
-        type::AbstractString,
-        volume::AbstractString, # shared with volume
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String,
+        booktitle::String,
+        publisher::String,
+        title::String,
+        year::String,
+        address::String,
+        chapter::String,
+        edition::String,
+        editor::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String, # shared with volume
+        pages::String,
+        series::String,
+        type::String,
+        volume::String, # shared with volume
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -492,35 +492,35 @@ struct InCollection <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, booktitle, publisher, title, year, address, chapter, edition, editor, key, month, note, number, pages, series, type, volume, other)
+        return new(id, author, booktitle, publisher, title, year, address, chapter, edition, editor, key, month, note, number, pages, series, type, volume, fields)
     end
 end
 
 function InCollection(
-    id::AbstractString,
-    author::AbstractString,
-    booktitle::AbstractString,
-    publisher::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    chapter::AbstractString="",
-    edition::AbstractString="",
-    editor::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="", # shared with volume
-    pages::AbstractString="",
-    series::AbstractString="",
-    type::AbstractString="",
-    volume::AbstractString="", # shared with volume
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    booktitle::String,
+    publisher::String,
+    title::String,
+    year::String;
+    address::String="",
+    chapter::String="",
+    edition::String="",
+    editor::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="", # shared with volume
+    pages::String="",
+    series::String="",
+    type::String="",
+    volume::String="", # shared with volume
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    InCollection(id, author, booktitle, publisher, title, year, address, chapter, edition, editor, key, month, note, number, pages, series, type, volume, other)
+    InCollection(id, author, booktitle, publisher, title, year, address, chapter, edition, editor, key, month, note, number, pages, series, type, volume, fields)
 end
 
-function InCollection(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function InCollection(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     booktitle = get_delete(d, "booktitle")
     publisher = get_delete(d, "publisher")
@@ -543,50 +543,50 @@ end
 
 struct InProceedings <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    booktitle::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    booktitle::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    editor::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString # shared with volume
-    organization::AbstractString
-    pages::AbstractString
-    publisher::AbstractString
-    series::AbstractString
-    volume::AbstractString # shared with volume
+    address::String
+    editor::String
+    key::String
+    month::String
+    note::String
+    number::String # shared with volume
+    organization::String
+    pages::String
+    publisher::String
+    series::String
+    volume::String # shared with volume
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function InProceedings(
-        id::AbstractString,
-        author::AbstractString,
-        booktitle::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        editor::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString,
-        organization::AbstractString,
-        pages::AbstractString,
-        publisher::AbstractString,
-        series::AbstractString,
-        volume::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String,
+        booktitle::String,
+        title::String,
+        year::String,
+        address::String,
+        editor::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String,
+        organization::String,
+        pages::String,
+        publisher::String,
+        series::String,
+        volume::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -602,33 +602,33 @@ struct InProceedings <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, booktitle, title, year, address, editor, key, month, note, number, organization, pages, publisher, series, volume, other)
+        return new(id, author, booktitle, title, year, address, editor, key, month, note, number, organization, pages, publisher, series, volume, fields)
     end
 end
 
 function InProceedings(
-    id::AbstractString,
-    author::AbstractString,
-    booktitle::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    editor::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="",
-    organization::AbstractString="",
-    pages::AbstractString="",
-    publisher::AbstractString="",
-    series::AbstractString="",
-    volume::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    booktitle::String,
+    title::String,
+    year::String;
+    address::String="",
+    editor::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="",
+    organization::String="",
+    pages::String="",
+    publisher::String="",
+    series::String="",
+    volume::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    InProceedings(id, author, booktitle, title, year, address, editor, key, month, note, number, organization, pages, publisher, series, volume, other)
+    InProceedings(id, author, booktitle, title, year, address, editor, key, month, note, number, organization, pages, publisher, series, volume, fields)
 end
 
-function InProceedings(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function InProceedings(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     booktitle = get_delete(d, "booktitle")
     title = get_delete(d, "title")
@@ -649,65 +649,65 @@ end
 
 struct Manual <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    title::AbstractString
+    title::String
 
     # Optional
-    address::AbstractString
-    author::AbstractString
-    edition::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    organization::AbstractString
-    year::AbstractString
+    address::String
+    author::String
+    edition::String
+    key::String
+    month::String
+    note::String
+    organization::String
+    year::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function Manual(
-        id::AbstractString,
-        title::AbstractString,
-        address::AbstractString,
-        author::AbstractString,
-        edition::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        organization::AbstractString,
-        year::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        title::String,
+        address::String,
+        author::String,
+        edition::String,
+        key::String,
+        month::String,
+        note::String,
+        organization::String,
+        year::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if title == ""
             push!(errors, "title")
         end
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, address, author, edition, key, month, note, organization, year, other)
+        return new(id, title, address, author, edition, key, month, note, organization, year, fields)
     end
 end
 
 function Manual(
-    id::AbstractString,
-    title::AbstractString;
-    address::AbstractString="",
-    author::AbstractString="",
-    edition::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    organization::AbstractString="",
-    year::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    title::String;
+    address::String="",
+    author::String="",
+    edition::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    organization::String="",
+    year::String="",
+    fields::Dict{String,String}=Dict{String,String}()
 )
-    Manual(id, title, address, author, edition, key, month, note, organization, year, other)
+    Manual(id, title, address, author, edition, key, month, note, organization, year, fields)
 end
 
-function Manual(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Manual(id::String, d::Dict{String,String})
     title = get_delete(d, "title")
     address = get_delete(d, "address")
     author = get_delete(d, "author")
@@ -722,38 +722,38 @@ end
 
 struct MasterThesis <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    school::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    school::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    type::AbstractString
+    address::String
+    key::String
+    month::String
+    note::String
+    type::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function MasterThesis(
-        id::AbstractString,
-        author::AbstractString,
-        school::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        type::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String,
+        school::String,
+        title::String,
+        year::String,
+        address::String,
+        key::String,
+        month::String,
+        note::String,
+        type::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -769,27 +769,27 @@ struct MasterThesis <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, school, title,  year, address, key, month, note, type, other)
+        return new(id, author, school, title,  year, address, key, month, note, type, fields)
     end
 end
 
 function MasterThesis(
-    id::AbstractString,
-    author::AbstractString,
-    school::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    type::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    school::String,
+    title::String,
+    year::String;
+    address::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    type::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    MasterThesis(id, author, school, title,  year, address, key, month, note, type, other)
+    MasterThesis(id, author, school, title,  year, address, key, month, note, type, fields)
 end
 
-function MasterThesis(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function MasterThesis(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     school = get_delete(d, "school")
     title = get_delete(d, "title")
@@ -804,36 +804,36 @@ end
 
 struct Misc <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Optional
-    author::AbstractString
-    howpublished::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    howpublished::String
+    key::String
+    month::String
+    note::String
+    title::String
+    year::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 end
 
 function Misc(
-    id::AbstractString;
-    author::AbstractString="",
-    howpublished::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    title::AbstractString="",
-    year::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String;
+    author::String="",
+    howpublished::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    title::String="",
+    year::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    Misc(id, author, howpublished, key, month, note, title, year, other)
+    Misc(id, author, howpublished, key, month, note, title, year, fields)
 end
 
-function Misc(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Misc(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     howpublished = get_delete(d, "howpublished")
     key = get_delete(d, "key")
@@ -846,38 +846,38 @@ end
 
 struct PhDThesis <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    school::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    school::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    type::AbstractString
+    address::String
+    key::String
+    month::String
+    note::String
+    type::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function PhDThesis(
-        id::AbstractString,
-        author::AbstractString,
-        school::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        type::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String,
+        school::String,
+        title::String,
+        year::String,
+        address::String,
+        key::String,
+        month::String,
+        note::String,
+        type::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -893,27 +893,27 @@ struct PhDThesis <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, school, title,  year, address, key, month, note, type, other)        
+        return new(id, author, school, title,  year, address, key, month, note, type, fields)        
     end
 end
 
 function PhDThesis(
-    id::AbstractString,
-    author::AbstractString,
-    school::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    type::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    school::String,
+    title::String,
+    year::String;
+    address::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    type::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    PhDThesis(id, author, school, title,  year, address, key, month, note, type, other)
+    PhDThesis(id, author, school, title,  year, address, key, month, note, type, fields)
 end
 
-function PhDThesis(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function PhDThesis(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     school = get_delete(d, "school")
     title = get_delete(d, "title")
@@ -928,44 +928,44 @@ end
 
 struct Proceedings <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    title::AbstractString
-    year::AbstractString
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    editor::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString # shared with volume
-    organization::AbstractString
-    publisher::AbstractString
-    series::AbstractString
-    volume::AbstractString # shared with number
+    address::String
+    editor::String
+    key::String
+    month::String
+    note::String
+    number::String # shared with volume
+    organization::String
+    publisher::String
+    series::String
+    volume::String # shared with number
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function Proceedings(    
-        id::AbstractString,    
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        editor::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString, # shared with volume
-        organization::AbstractString,
-        publisher::AbstractString,
-        series::AbstractString,
-        volume::AbstractString, # shared with number
-        other::Dict{AbstractString,AbstractString}
+        id::String,    
+        title::String,
+        year::String,
+        address::String,
+        editor::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String, # shared with volume
+        organization::String,
+        publisher::String,
+        series::String,
+        volume::String, # shared with number
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if title == ""
             push!(errors, "title")
         end
@@ -975,30 +975,30 @@ struct Proceedings <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, other)
+        return new(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, fields)
     end
 end
 
 function Proceedings(
-    id::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    editor::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="", # shared with volume
-    organization::AbstractString="",
-    publisher::AbstractString="",
-    series::AbstractString="",
-    volume::AbstractString="", # shared with number
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    title::String,
+    year::String;
+    address::String="",
+    editor::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="", # shared with volume
+    organization::String="",
+    publisher::String="",
+    series::String="",
+    volume::String="", # shared with number
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    Proceedings(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, other)
+    Proceedings(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, fields)
 end
 
-function Proceedings(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Proceedings(id::String, d::Dict{String,String})
     title = get_delete(d, "title")
     year = get_delete(d, "year")
     address = get_delete(d, "address")
@@ -1016,40 +1016,40 @@ end
 
 struct TechReport <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    institution::AbstractString
-    title::AbstractString
-    year::AbstractString
+    author::String
+    institution::String
+    title::String
+    year::String
 
     # Optional
-    address::AbstractString
-    key::AbstractString
-    month::AbstractString
-    note::AbstractString
-    number::AbstractString
-    type::AbstractString
+    address::String
+    key::String
+    month::String
+    note::String
+    number::String
+    type::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function TechReport(
-        id::AbstractString,
-        author::AbstractString,
-        institution::AbstractString,
-        title::AbstractString,
-        year::AbstractString,
-        address::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        note::AbstractString,
-        number::AbstractString,
-        type::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,
+        author::String,
+        institution::String,
+        title::String,
+        year::String,
+        address::String,
+        key::String,
+        month::String,
+        note::String,
+        number::String,
+        type::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -1065,28 +1065,28 @@ struct TechReport <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, institution, title, year, address, key, month, note, number, type, other)
+        return new(id, author, institution, title, year, address, key, month, note, number, type, fields)
     end
 end
 
 function TechReport(
-    id::AbstractString,
-    author::AbstractString,
-    institution::AbstractString,
-    title::AbstractString,
-    year::AbstractString;
-    address::AbstractString="",
-    key::AbstractString="",
-    month::AbstractString="",
-    note::AbstractString="",
-    number::AbstractString="",
-    type::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    institution::String,
+    title::String,
+    year::String;
+    address::String="",
+    key::String="",
+    month::String="",
+    note::String="",
+    number::String="",
+    type::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    TechReport(id, author, institution, title, year, address, key, month, note, number, type, other)
+    TechReport(id, author, institution, title, year, address, key, month, note, number, type, fields)
 end
 
-function TechReport(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function TechReport(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     institution = get_delete(d, "institution")
     title = get_delete(d, "title")
@@ -1102,32 +1102,32 @@ end
 
 struct Unpublished <: AbstractEntry
     # ID field
-    id::AbstractString
+    id::String
 
     # Required
-    author::AbstractString
-    note::AbstractString # TODO; is it required?
-    title::AbstractString
+    author::String
+    note::String # TODO; is it required?
+    title::String
 
     # Optional
-    key::AbstractString
-    month::AbstractString
-    year::AbstractString
+    key::String
+    month::String
+    year::String
 
-    # Other
-    other::Dict{AbstractString,AbstractString}
+    # Other fields
+    fields::Dict{String,String}
 
     function Unpublished(    
-        id::AbstractString,    
-        author::AbstractString,
-        note::AbstractString,
-        title::AbstractString,
-        key::AbstractString,
-        month::AbstractString,
-        year::AbstractString,
-        other::Dict{AbstractString,AbstractString}
+        id::String,    
+        author::String,
+        note::String,
+        title::String,
+        key::String,
+        month::String,
+        year::String,
+        fields::Dict{String,String}
         )
-        errors = Vector{AbstractString}()
+        errors = Vector{String}()
         if author == ""
             push!(errors, "author")
         end
@@ -1140,24 +1140,24 @@ struct Unpublished <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, note, title, key, month, year, other)
+        return new(id, author, note, title, key, month, year, fields)
     end
 end
 
 function Unpublished(
-    id::AbstractString,
-    author::AbstractString,
-    note::AbstractString,
-    title::AbstractString;
-    key::AbstractString="",
-    month::AbstractString="",
-    year::AbstractString="",
-    other::Dict{AbstractString,AbstractString}=Dict{AbstractString,AbstractString}()
+    id::String,
+    author::String,
+    note::String,
+    title::String;
+    key::String="",
+    month::String="",
+    year::String="",
+    fields::Dict{String,String}=Dict{String,String}()
     )
-    Unpublished(id, author, note, title, key, month, year, other)
+    Unpublished(id, author, note, title, key, month, year, fields)
 end
 
-function Unpublished(id::AbstractString, d::Dict{AbstractString,AbstractString})
+function Unpublished(id::String, d::Dict{String,String})
     author = get_delete(d, "author")
     note = get_delete(d, "note")
     title = get_delete(d, "title")
