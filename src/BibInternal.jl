@@ -4,7 +4,7 @@ module BibInternal
 abstract type AbstractEntry end
 
 # Generic Entry type (any fields is accepted without check nor rules)
-struct GenericEntry
+struct GenericEntry <: AbstractEntry
     fields::Dict{String,String}
 end
 
