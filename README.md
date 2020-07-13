@@ -1,6 +1,6 @@
 # BibInternal.jl
 
-This package provides an internal format to translate from/to other bibliographic formating.
+This package provides an internal format to translate from/to other bibliographic format.
 
 All entries depend of an abstract supertype `AbstractEntry`.
 One generic entry `GenericEntry` is available to make entries without any specific rules.
