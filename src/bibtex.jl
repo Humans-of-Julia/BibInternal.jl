@@ -3,7 +3,7 @@ module BibTeX # Based on https://en.wikipedia.org/wiki/BibTeX
 import BibInternal.AbstractEntry
 
 export Article, Book, Booklet, InBook, InCollection, InProceedings, Manual, MasterThesis, Misc, PhDThesis, Proceedings, TechReport, Unpublished
-export make_bibtex_entry
+export make_bibtex_entry, BibtexName, string_to_bibtex_name
 
 function make_bibtex_entry(
     type::String,
@@ -45,12 +45,115 @@ function get_delete(d::Dict{String,String}, key::String)
     return ans
 end
 
+struct BibtexName  
+    particle::String
+    last::String
+    junior::String
+    first::String
+    middle::String  
+end
+
+function strings_to_bibtexnames(str::String)
+    aux = split(str, r"[\n\r ]and[\n\r ]")
+    return map(x -> string_to_bibtex_name(String(x)), aux)
+end
+
+function string_to_bibtex_name(str::String)
+    subnames = split(str, r"[\n\r ]*,[\n\r ]*")
+    
+    # subnames containers
+    first = ""
+    middle = ""
+    particle = ""
+    last = ""
+    junior = ""
+
+    # mark for string parsing
+    mark_in = 1
+    mark_out = 0
+
+    # BibTeX form 1: First Second von Last
+    if length(subnames) == 1
+        aux = split(subnames[1], r"[\n\r ]+")
+        mark_out = length(aux) - 1
+        last = aux[end]
+        if length(aux) > 1 && isuppercase(aux[1][1])
+            first = aux[1]
+            mark_in += 1
+            for s in aux[2:end-1]
+                mark_in += 1
+                if islowercase(s[1])
+                    break;
+                end
+                middle *= " $s"
+            end
+            for s in reverse(aux[mark_in:mark_out])
+                if islowercase(s[1])
+                    break;
+                end
+                mark_out -= 1
+                last = "$s " * last
+            end
+            for s in aux[mark_in:mark_out]
+                particle *= " $s"
+            end
+        end
+    end
+    # BibTeX form 2: von Last, First Second
+    if length(subnames) == 2
+        aux = split(subnames[1], r"[\n\r ]+") # von Last
+        mark_out = length(aux) - 1
+        last = string(aux[end])
+        for s in reverse(aux[1:mark_out])
+            if islowercase(s[1])
+                break;
+            end
+            mark_out -= 1
+            last = "$s " * last
+        end
+        for s in aux[1:mark_out]
+            particle *= " $s"
+        end
+        aux = split(subnames[2], r"[\n\r ]+")
+        first = aux[1]
+        if length(aux) > 1
+            for s in aux[2:end]
+                middle *= " $s"
+            end
+        end
+    end
+    if length(subnames) == 3
+        aux = split(subnames[1], r"[\n\r ]+") # von Last
+        mark_out = length(aux) - 1
+        last = aux[end]
+        for s in reverse(aux[1:mark_out])
+            if islowercase(s[1])
+                break;
+            end
+            mark_out -= 1
+            last = "$s " * last
+        end
+        for s in aux[1:mark_out]
+            particle *= " $s"
+        end
+        junior = subnames[2]
+        aux =split(subnames[3], r"[\n\r ]+")
+        first = aux[1]
+        if length(aux) > 1
+            for s in aux[2:end]
+                middle *= " $s"
+            end
+        end
+    end
+    return BibtexName(particle, last, junior, first, middle)
+end
+
 struct Article <: AbstractEntry
     # ID field
     id::String
 
     # Required fields
-    author::String
+    author::Vector{BibtexName}
     journal::String
     title::String
     volume::String
@@ -101,12 +204,13 @@ struct Article <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, journal, title, volume, year, doi, key, month, note, number, pages, fields)            
+        authors = strings_to_bibtexnames(author)
+        return new(id, authors, journal, title, volume, year, doi, key, month, note, number, pages, fields)            
     end
 end
 function Article(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     journal::String,
     title::String,
     volume::String,
@@ -143,8 +247,8 @@ struct Book <: AbstractEntry
     id::String
 
     # Required
-    author::String # shared with editor
-    editor::String # shared with author
+    author::Vector{BibtexName} # shared with editor
+    editor::Vector{BibtexName} # shared with author
     publisher::String
     title::String
     year::String
@@ -197,14 +301,16 @@ struct Book <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, editor, publisher, title, year, address, edition, key, month, note, number, series, url, volume, fields)
+        authors = strings_to_bibtexnames(author)
+        editors = strings_to_bibtexnames(editor)
+        return new(id, authors, editors, publisher, title, year, address, edition, key, month, note, number, series, url, volume, fields)
     end
 end
 
 function Book(
     id::String,
-    author::String, # shared with editor
-    editor::String, # shared with author
+    author::Vector{BibtexName}, # shared with editor
+    editor::Vector{BibtexName}, # shared with author
     publisher::String,
     title::String,
     year::String;
@@ -250,7 +356,7 @@ struct Booklet <: AbstractEntry
 
     # Optional
     address::String
-    author::String
+    author::Vector{BibtexName}
     howpublished::String
     key::String
     month::String
@@ -279,7 +385,8 @@ struct Booklet <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, address, author, howpublished, key, month, note, year, fields)
+        authors = strings_to_bibtexnames(author)
+        return new(id, title, address, authors, howpublished, key, month, note, year, fields)
     end
 
 end
@@ -288,7 +395,7 @@ function Booklet(
     id::String,
     title::String;
     address::String="",
-    author::String="",
+    author::Vector{BibtexName}=[],
     howpublished::String="",
     key::String="",
     month::String="",
@@ -316,9 +423,9 @@ struct InBook <: AbstractEntry
     id::String
 
     # Required
-    author::String # shared with editor
+    author::Vector{BibtexName} # shared with editor
     chapter::String # shared with pages
-    editor::String # shared with author
+    editor::Vector{BibtexName} # shared with author
     pages::String # shared with chapter
     publisher::String
     title::String
@@ -377,15 +484,17 @@ struct InBook <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, chapter, editor, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, fields)
+        authors = strings_to_bibtexnames(author)
+        editors = strings_to_bibtexnames(editor)
+        return new(id, authors, chapter, editors, pages, publisher, title, year, address, edition, key, month, note, number, series, type, volume, fields)
     end
 end
 
 function InBook(
     id::String,
-    author::String, # shared with editor
+    author::Vector{BibtexName}, # shared with editor
     chapter::String, # shared with pages
-    editor::String, # shared with author
+    editor::Vector{BibtexName}, # shared with author
     pages::String, # shared with chapter
     publisher::String,
     title::String,
@@ -429,7 +538,7 @@ struct InCollection <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     booktitle::String
     publisher::String
     title::String
@@ -439,7 +548,7 @@ struct InCollection <: AbstractEntry
     address::String
     chapter::String
     edition::String
-    editor::String
+    editor::Vector{BibtexName}
     key::String
     month::String
     note::String
@@ -492,13 +601,15 @@ struct InCollection <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, booktitle, publisher, title, year, address, chapter, edition, editor, key, month, note, number, pages, series, type, volume, fields)
+        authors = strings_to_bibtexnames(author)
+        editors = strings_to_bibtexnames(editor)
+        return new(id, authors, booktitle, publisher, title, year, address, chapter, edition, editors, key, month, note, number, pages, series, type, volume, fields)
     end
 end
 
 function InCollection(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     booktitle::String,
     publisher::String,
     title::String,
@@ -506,7 +617,7 @@ function InCollection(
     address::String="",
     chapter::String="",
     edition::String="",
-    editor::String="",
+    editor::Vector{BibtexName}=[],
     key::String="",
     month::String="",
     note::String="",
@@ -546,14 +657,14 @@ struct InProceedings <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     booktitle::String
     title::String
     year::String
 
     # Optional
     address::String
-    editor::String
+    editor::Vector{BibtexName}
     key::String
     month::String
     note::String
@@ -602,18 +713,20 @@ struct InProceedings <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, booktitle, title, year, address, editor, key, month, note, number, organization, pages, publisher, series, volume, fields)
+        authors = strings_to_bibtexnames(author)
+        editors = strings_to_bibtexnames(editor)
+        return new(id, authors, booktitle, title, year, address, editors, key, month, note, number, organization, pages, publisher, series, volume, fields)
     end
 end
 
 function InProceedings(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     booktitle::String,
     title::String,
     year::String;
     address::String="",
-    editor::String="",
+    editor::Vector{BibtexName}=[],
     key::String="",
     month::String="",
     note::String="",
@@ -656,7 +769,7 @@ struct Manual <: AbstractEntry
 
     # Optional
     address::String
-    author::String
+    author::Vector{BibtexName}
     edition::String
     key::String
     month::String
@@ -687,7 +800,8 @@ struct Manual <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, address, author, edition, key, month, note, organization, year, fields)
+        authors = strings_to_bibtexnames(author)
+        return new(id, title, address, authors, edition, key, month, note, organization, year, fields)
     end
 end
 
@@ -695,7 +809,7 @@ function Manual(
     id::String,
     title::String;
     address::String="",
-    author::String="",
+    author::Vector{BibtexName}=[],
     edition::String="",
     key::String="",
     month::String="",
@@ -725,7 +839,7 @@ struct MasterThesis <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     school::String
     title::String
     year::String
@@ -769,13 +883,14 @@ struct MasterThesis <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, school, title,  year, address, key, month, note, type, fields)
+        authors = strings_to_bibtexnames(author)
+        return new(id, authors, school, title,  year, address, key, month, note, type, fields)
     end
 end
 
 function MasterThesis(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     school::String,
     title::String,
     year::String;
@@ -807,7 +922,7 @@ struct Misc <: AbstractEntry
     id::String
 
     # Optional
-    author::String
+    author::Vector{BibtexName}
     howpublished::String
     key::String
     month::String
@@ -817,11 +932,26 @@ struct Misc <: AbstractEntry
 
     # Other fields
     fields::Dict{String,String}
+
+    function Misc(
+        id::String,
+        author::String,
+        howpublished::String,
+        key::String,
+        month::String,
+        note::String,
+        title::String,
+        year::String,
+        fields::Dict{String,String}
+        )
+        authors = strings_to_bibtexnames(author)
+        new(id, authors, howpublished, key, month, note, title, year, fields)
+    end
 end
 
 function Misc(
     id::String;
-    author::String="",
+    author::Vector{BibtexName}=[],
     howpublished::String="",
     key::String="",
     month::String="",
@@ -849,7 +979,7 @@ struct PhDThesis <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     school::String
     title::String
     year::String
@@ -892,14 +1022,15 @@ struct PhDThesis <: AbstractEntry
         end
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
-        end
-        return new(id, author, school, title,  year, address, key, month, note, type, fields)        
+        end        
+        authors = strings_to_bibtexnames(author)
+        return new(id, authors, school, title,  year, address, key, month, note, type, fields)        
     end
 end
 
 function PhDThesis(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     school::String,
     title::String,
     year::String;
@@ -936,7 +1067,7 @@ struct Proceedings <: AbstractEntry
 
     # Optional
     address::String
-    editor::String
+    editor::Vector{BibtexName}
     key::String
     month::String
     note::String
@@ -975,7 +1106,8 @@ struct Proceedings <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, title, year, address, editor, key, month, note, number, organization, publisher, series, volume, fields)
+        editors = strings_to_bibtexnames(editor)
+        return new(id, title, year, address, editors, key, month, note, number, organization, publisher, series, volume, fields)
     end
 end
 
@@ -984,7 +1116,7 @@ function Proceedings(
     title::String,
     year::String;
     address::String="",
-    editor::String="",
+    editor::Vector{BibtexName}=[],
     key::String="",
     month::String="",
     note::String="",
@@ -1019,7 +1151,7 @@ struct TechReport <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     institution::String
     title::String
     year::String
@@ -1065,13 +1197,14 @@ struct TechReport <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, institution, title, year, address, key, month, note, number, type, fields)
+        authors = strings_to_bibtexnames(author)
+        return new(id, authors, institution, title, year, address, key, month, note, number, type, fields)
     end
 end
 
 function TechReport(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     institution::String,
     title::String,
     year::String;
@@ -1105,7 +1238,7 @@ struct Unpublished <: AbstractEntry
     id::String
 
     # Required
-    author::String
+    author::Vector{BibtexName}
     note::String # TODO; is it required?
     title::String
 
@@ -1128,7 +1261,7 @@ struct Unpublished <: AbstractEntry
         fields::Dict{String,String}
         )
         errors = Vector{String}()
-        if author == ""
+        if author == []
             push!(errors, "author")
         end
         # if note == ""
@@ -1140,13 +1273,14 @@ struct Unpublished <: AbstractEntry
         if length(errors) > 0
             error("Missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
         end
-        return new(id, author, note, title, key, month, year, fields)
+        authors = strings_to_bibtexnames(author)
+        return new(id, authors, note, title, key, month, year, fields)
     end
 end
 
 function Unpublished(
     id::String,
-    author::String,
+    author::Vector{BibtexName},
     note::String,
     title::String;
     key::String="",
