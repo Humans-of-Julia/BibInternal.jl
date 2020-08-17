@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.com/Azzaare/BibInternal.jl.svg?branch=master)](https://travis-ci.com/Azzaare/BibInternal.jl)
+[![codecov](https://codecov.io/gh/Azzaare/BibInternal.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Azzaare/BibInternal.jl)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # BibInternal.jl
 
 This package provides an internal format to translate from/to other bibliographic format.
