@@ -1,9 +1,15 @@
 module BibInternal
 
-# Abstract Entry type
+"""
+    abstract type AbstractEntry end
+Abstract Entry supertype.
+"""
 abstract type AbstractEntry end
 
-# Fields: Dict of name => value
+"""
+    Fields = Dict{String, String}
+Stores the fields (`name => value`) of an entry.
+"""
 Fields = Dict{String, String}
 
 # Includes

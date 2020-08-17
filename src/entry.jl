@@ -1,3 +1,13 @@
+"""
+    struct Name  
+        particle::String
+        last::String
+        junior::String
+        first::String
+        middle::String  
+    end
+Store a name with no ambiguities. For additional parts to define a name, please fill an issue or make a pull request.
+"""
 # Name type
 struct Name  
     particle::String
@@ -8,6 +18,10 @@ struct Name
 end
 Names = Vector{Name}
 
+"""
+    Name(str::String)
+Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (optional), `first` `middle` (optional) based on BibTeX possible input. As for BibTeX, the decomposition of a name in the form of `first` `last` is also possible, but ambiguities can occur.
+"""
 function Name(str::String)
     subnames = split(str, r"[\n\r ]*,[\n\r ]*")
     
@@ -98,17 +112,33 @@ function Name(str::String)
     return Name(particle, last, junior, first, middle)
 end
 
+"""
+    names(str::String)
+Decompose into parts a list of names in BibTeX compatible format. That is names sparated by `and`.
+"""
 function names(str::String)
     aux = split(str, r"[\n\r ]and[\n\r ]")
     return map(x -> Name(String(x)), aux)
 end
 
-# How to access the entry online
+"""
+    struct Access
+        doi::String
+        howpublished::String
+        url::String
+    end
+Store the online access of an entry as a String. Handles the fields `doi` and `url` and the `arXiV` entries. For additional fields or entries, please fill an issue or make a pull request.
+"""
 struct Access
     doi::String
     howpublished::String
     url::String
 end
+
+"""
+    Access(fields::Fields)
+Construct the online access information based on the entry fields.
+"""
 function Access(fields::Fields)
     doi = get_delete!(fields, "doi")
     howpublished = get_delete!(fields, "howpublished")
@@ -116,12 +146,24 @@ function Access(fields::Fields)
     Access(doi, howpublished, url)
 end
 
-# Date of publication
+"""
+    struct Date
+        day::String
+        month::String
+        year::String
+    end
+Store the date information as `day`, `month`, and `year`.
+"""
 struct Date
     day::String
     month::String
     year::String
 end
+
+"""
+    Date(fields::Fields)
+Construct the date information based on the entry fields.
+"""
 function Date(fields::Fields)
     day = get_delete!(fields, "day")
     month = get_delete!(fields, "month")
@@ -129,11 +171,24 @@ function Date(fields::Fields)
     Date(day, month, year)
 end
 
+"""
+    struct Eprint
+        archive_prefix::String
+        eprint::String
+        primary_class::String
+    end
+Store the information related to arXiv eprint format.
+"""
 struct Eprint
     archive_prefix::String
     eprint::String
     primary_class::String
 end
+
+"""
+    Eprint(fields::Fields)
+Construct the eprint arXiv information based on the entry fields. Handle old and current arXiv format.
+"""
 function Eprint(fields::Fields)
     archive_prefix = get_delete!(fields, "archivePrefix")
     eprint = get_delete!(fields, "eprint")
@@ -141,7 +196,23 @@ function Eprint(fields::Fields)
     Eprint(archive_prefix, eprint, primary_class)
 end
 
-# In which media it was published
+"""
+    struct In
+        address::String
+        chapter::String
+        edition::String
+        institution::String
+        journal::String
+        number::String
+        organization::String
+        pages::String
+        publisher::String
+        school::String
+        series::String
+        volume::String
+    end
+Store all the information related to how an entry was published.
+"""
 struct In
     address::String
     chapter::String
@@ -156,6 +227,11 @@ struct In
     series::String
     volume::String
 end
+
+"""
+    In(fields::Fields)
+Construct the information of how an entry was published based on its fields
+"""
 function In(fields::Fields)
     address = get_delete!(fields, "address")
     chapter = get_delete!(fields, "chapter")
@@ -172,7 +248,22 @@ function In(fields::Fields)
     In(address, chapter, edition, institution, journal, number, organization, pages, publisher, school, series, volume)
 end
 
-# Generic Entry type (any fields is accepted without check nor rules)
+"""
+    struct Entry <: AbstractEntry
+        access::Access
+        authors::Names
+        booktitle::String
+        date::Date
+        editors::Names
+        eprint::Eprint
+        id::String
+        in::In
+        fields::Dict{String,String}
+        title::String
+        type::String
+    end
+Generic Entry type. If some construction rules are required, it should be done beforehand. Check `bibtex.jl` as the example of rules implementation for BibTeX format.
+"""
 struct Entry <: AbstractEntry
     access::Access
     authors::Names
@@ -187,6 +278,10 @@ struct Entry <: AbstractEntry
     type::String
 end
 
+"""
+    Entry(id::String, fields::Fields)
+Construct an entry with a unique id and a list of `Fields`.
+"""
 function Entry(id::String, fields::Fields)
     access = Access(fields)
     authors = names(get_delete!(fields, "author"))

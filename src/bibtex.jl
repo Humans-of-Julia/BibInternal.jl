@@ -1,5 +1,24 @@
 Required = Union{String, Tuple{String, String}}
 
+"""
+    const rules = Dict([
+        "article"       => ["author", "journal", "title", "volume", "year"]
+        "book"          => [("author", "editor"), "publisher", "title", "year"]
+        "booklet"       => ["title"]
+        "eprint"        => ["author", "eprint", "title", "year"]
+        "inbook"        => [("author", "editor"), ("chapter", "pages"), "publisher", "title", "year"]
+        "incollection"  => ["author", "booktitle", "publisher", "title", "year"]
+        "inproceedings" => ["author", "booktitle", "title", "year"]
+        "manual"        => ["title"]
+        "masterthesis"  => ["author", "school", "title", "year"]
+        "misc"          => []
+        "phdthesis"     => ["author", "school", "title", "year"]
+        "proceedings"   => ["title", "year"]
+        "techreport"    => ["author", "institution", "title", "year"]
+        "unpublished"   => ["author", "note", "title"]
+    ])
+List of BibTeX rules bases on the entry type. A field value as a singleton represents a required field. A pair of values represents mutually exclusive required fields.
+"""
 const rules = Dict{String, Vector{Required}}([
     "article"       => ["author", "journal", "title", "volume", "year"]
     "book"          => [("author", "editor"), "publisher", "title", "year"]
@@ -17,6 +36,10 @@ const rules = Dict{String, Vector{Required}}([
     "unpublished"   => ["author", "note", "title"]
 ])
 
+"""
+    check_entry(fields::Fields)
+Check the validity of the fields of a BibTeX entry.
+"""
 function check_entry(
     fields::Fields
     )
@@ -42,6 +65,10 @@ function check_entry(
     return errors
 end
 
+"""
+    make_bibtex_entry(id::String, fields::Fields)
+Make an entry if the entry follows the BibTeX guidelines. Throw an error otherwise.
+"""
 function make_bibtex_entry(
     id::String,
     fields::Fields
