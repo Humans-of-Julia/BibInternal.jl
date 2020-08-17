@@ -7,7 +7,7 @@ makedocs(
         prettyurls = get(ENV, "CI", nothing) == "true"
     ),
     pages = [
-        "Home" => "index.md",
+        "Entries" => "index.md",
         "BibTeX" => "bibtex.md",
         "Utilities" => "utilities.md"
     ]
