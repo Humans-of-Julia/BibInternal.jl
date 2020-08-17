@@ -12,6 +12,8 @@ notifications:
   email: false
 
 jobs:
+  allow_failures:
+    - julia: nightly
   include:
     - stage: "Documentation"
       julia: 1.5.0
