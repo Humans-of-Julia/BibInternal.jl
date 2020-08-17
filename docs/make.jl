@@ -13,3 +13,6 @@ makedocs(
     ]
 )
 
+deploydocs(
+    repo = "github.com/Azzaare/BibInternal.jl.git",
+)
