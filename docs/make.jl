@@ -15,4 +15,6 @@ makedocs(
 
 deploydocs(
     repo = "github.com/Azzaare/BibInternal.jl.git",
+    target = "build",
+    push_preview = true
 )

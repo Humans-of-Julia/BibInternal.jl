@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/Azzaare/BibInternal.jl.svg?branch=master)](https://travis-ci.com/Azzaare/BibInternal.jl)
 [![codecov](https://codecov.io/gh/Azzaare/BibInternal.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Azzaare/BibInternal.jl)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://Azzaare.github.io/BibInternal.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://Azzaare.github.io/BibInternal.jl/stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # BibInternal.jl
