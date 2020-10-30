@@ -283,6 +283,7 @@ end
 Construct an entry with a unique id and a list of `Fields`.
 """
 function Entry(id::String, fields::Fields)
+    # foreach((name, field) -> fields[name] = erase_spaces(field), fields)
     access = Access(fields)
     authors = names(get_delete!(fields, "author"))
     booktitle = get_delete!(fields, "booktitle")

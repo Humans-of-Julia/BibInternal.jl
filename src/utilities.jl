@@ -30,3 +30,11 @@ function arxive_url(fields::Fields)
     end
     return str
 end
+
+"""
+    erase_spaces(str::String)
+Erase extra spaces, i.e. `r"[\n\r ]+"`, from `str` and return a new string.
+"""
+function erase_spaces(str::String)
+    return replace(str, r"[\n\r ]+" => " ")
+end
