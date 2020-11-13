@@ -2,7 +2,7 @@ Required = Union{String, Tuple{String, String}}
 
 """
     const rules = Dict([
-        "article"       => ["author", "journal", "title", "volume", "year"]
+        "article"       => ["author", "journal", "title", "year"]
         "book"          => [("author", "editor"), "publisher", "title", "year"]
         "booklet"       => ["title"]
         "eprint"        => ["author", "eprint", "title", "year"]
@@ -20,7 +20,7 @@ Required = Union{String, Tuple{String, String}}
 List of BibTeX rules bases on the entry type. A field value as a singleton represents a required field. A pair of values represents mutually exclusive required fields.
 """
 const rules = Dict{String, Vector{Required}}([
-    "article"       => ["author", "journal", "title", "volume", "year"]
+    "article"       => ["author", "journal", "title", "year"]
     "book"          => [("author", "editor"), "publisher", "title", "year"]
     "booklet"       => ["title"]
     "eprint"        => ["author", "eprint", "title", "year"]
@@ -53,7 +53,7 @@ function check_entry(
                     break
                 end
             end
-            if !at_least_one 
+            if !at_least_one
                 push!(errors, "{" * foldl((x,y)->"$x≡$y", t_field; init = "")[2:end] * "}")
             end
         else
