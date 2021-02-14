@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.com/Azzaare/BibInternal.jl.svg?branch=master)](https://travis-ci.com/Azzaare/BibInternal.jl)
-[![codecov](https://codecov.io/gh/Azzaare/BibInternal.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Azzaare/BibInternal.jl)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://Azzaare.github.io/BibInternal.jl/dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://Humans-of-Julia.github.io/BibInternal.jl/dev)
+[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://Humans-of-Julia.github.io/BibInternal.jl/stable)
+[![Build Status](https://github.com/Humans-of-Julia/BibInternal.jl/workflows/CI/badge.svg)](https://github.com/Humans-of-Julia/BibInternal.jl/actions)
+[![codecov](https://codecov.io/gh/Humans-of-Julia/BibInternal.jl/branch/master/graph/badge.svg?token=zkneHUR45j)](https://codecov.io/gh/Humans-of-Julia/BibInternal.jl)
 
 # BibInternal.jl
 
@@ -15,6 +15,6 @@ Currently, only one set of entries following the BibTeX rules is available. *Req
 Pull Requests to add more entries (or update the BibTeX rules) are welcome.
 
 ## Packages using BibInternal.jl
-- [BibParser.jl](https://github.com/Azzaare/BibParser.jl) : A package to parse bibliography files
+- [BibParser.jl](https://github.com/Humans-of-Julia/BibParser.jl) : A package to parse bibliography files
   - BibParser.BibTEX: an Automa.jl based BibTeX parser
-- [Bibliography.jl](https://github.com/Azzaare/Bibliography.jl) : A wrapper package to translate from/to different bibliographic formats (currently BibTeX and some web export)
+- [Bibliography.jl](https://github.com/Humans-of-Julia/Bibliography.jl) : A wrapper package to translate from/to different bibliographic formats (currently BibTeX and some web export)
