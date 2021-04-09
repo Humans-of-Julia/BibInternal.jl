@@ -76,6 +76,7 @@ function make_bibtex_entry(
     if "eprint" ∈ keys(fields)
         fields["type"] = "eprint"
     end
+    fields = Dict(lowercase(k)=>v for (k,v) in fields) # lowercase tag names
     errors = check_entry(fields)
     if length(errors) > 0
         error("Entry $id is missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
