@@ -1,20 +1,20 @@
 """
-    struct Name  
+    struct Name
         particle::String
         last::String
         junior::String
         first::String
-        middle::String  
+        middle::String
     end
 Store a name with no ambiguities. For additional parts to define a name, please fill an issue or make a pull request.
 """
 # Name type
-struct Name  
+struct Name
     particle::String
     last::String
     junior::String
     first::String
-    middle::String  
+    middle::String
 end
 Names = Vector{Name}
 
@@ -24,7 +24,7 @@ Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (
 """
 function Name(str::String)
     subnames = split(str, r"[\n\r ]*,[\n\r ]*")
-    
+
     # subnames containers
     first = ""
     middle = ""

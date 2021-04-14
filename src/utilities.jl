@@ -22,7 +22,7 @@ Make an arxiv url from an eprint entry. Work with both old and current arxiv Bib
 """
 function arxive_url(fields::Fields)
     str = "https://arxiv.org/abs/"
-    if get(fields, "archivePrefix", "") == ""
+    if get(fields, "archiveprefix", "") == ""
         aux = split(fields["eprint"], ":")
         str *= aux[2]
     else
