@@ -23,7 +23,7 @@ Names = Vector{Name}
 Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (optional), `first` `middle` (optional) based on BibTeX possible input. As for BibTeX, the decomposition of a name in the form of `first` `last` is also possible, but ambiguities can occur.
 """
 function Name(str::String)
-    subnames = split(str, r"[\n\r ]*,[\n\r ]*")
+    subnames = map(strip, split(str, r"[\n\r\t ]*,[\n\r\t ]*"; keepempty=false))
 
     # subnames containers
     first = ""
@@ -142,7 +142,7 @@ Construct the online access information based on the entry fields.
 function Access(fields::Fields)
     doi = get_delete!(fields, "doi")
     howpublished = get_delete!(fields, "howpublished")
-    url = fields["type"] == "eprint" ? arxive_url(fields) : get_delete!(fields, "url")
+    url = fields["_type"] == "eprint" ? arxive_url(fields) : get_delete!(fields, "url")
     Access(doi, howpublished, url)
 end
 
@@ -292,6 +292,6 @@ function Entry(id::String, fields::Fields)
     eprint = Eprint(fields)
     in_ = In(fields)
     title = get_delete!(fields, "title")
-    type = get_delete!(fields, "type")
+    type = get_delete!(fields, "_type")
     return Entry(access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type)
 end

@@ -28,7 +28,7 @@ const rules = Dict{String, Vector{Required}}([
     "incollection"  => ["author", "booktitle", "publisher", "title", "year"]
     "inproceedings" => ["author", "booktitle", "title", "year"]
     "manual"        => ["title"]
-    "masterthesis"  => ["author", "school", "title", "year"]
+    "mastersthesis"  => ["author", "school", "title", "year"]
     "misc"          => []
     "phdthesis"     => ["author", "school", "title", "year"]
     "proceedings"   => ["title", "year"]
@@ -44,7 +44,7 @@ function check_entry(
     fields::Fields
     )
     errors = Vector{String}()
-    for t_field in rules[get(fields, "type", "misc")]
+    for t_field in rules[get(fields, "_type", "misc")]
         at_least_one = false
         if typeof(t_field) == Tuple{String,String}
             for field in t_field
@@ -74,7 +74,7 @@ function make_bibtex_entry(
     fields::Fields
     )
     if "eprint" ∈ keys(fields)
-        fields["type"] = "eprint"
+        fields["_type"] = "eprint"
     end
     fields = Dict(lowercase(k)=>v for (k,v) in fields) # lowercase tag names
     errors = check_entry(fields)
