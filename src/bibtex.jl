@@ -73,6 +73,7 @@ function make_bibtex_entry(
     id::String,
     fields::Fields
     )
+    # @info id fields
     if "eprint" ∈ keys(fields)
         fields["_type"] = "eprint"
     end
