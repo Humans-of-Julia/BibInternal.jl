@@ -1,4 +1,4 @@
-Required = Union{String, Tuple{String, String}}
+Required = Union{String,Tuple{String,String}}
 
 """
     const rules = Dict([
@@ -19,7 +19,7 @@ Required = Union{String, Tuple{String, String}}
     ])
 List of BibTeX rules bases on the entry type. A field value as a singleton represents a required field. A pair of values represents mutually exclusive required fields.
 """
-const rules = Dict{String, Vector{Required}}([
+const rules = Dict{String,Vector{Required}}([
     "article"       => ["author", "journal", "title", "year"]
     "book"          => [("author", "editor"), "publisher", "title", "year"]
     "booklet"       => ["title"]
@@ -54,7 +54,7 @@ function check_entry(
                 end
             end
             if !at_least_one
-                push!(errors, "{" * foldl((x,y)->"$x≡$y", t_field; init = "")[2:end] * "}")
+                push!(errors, "{" * foldl((x, y) -> "$x≡$y", t_field; init="")[2:end] * "}")
             end
         else
             if get(fields, t_field, "") == ""
@@ -77,10 +77,10 @@ function make_bibtex_entry(
     if "eprint" ∈ keys(fields)
         fields["_type"] = "eprint"
     end
-    fields = Dict(lowercase(k)=>v for (k,v) in fields) # lowercase tag names
+    fields = Dict(lowercase(k) => v for (k, v) in fields) # lowercase tag names
     errors = check_entry(fields)
     if length(errors) > 0
         error("Entry $id is missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
     end
-    return Entry(id,fields)
+    return Entry(id, fields)
 end

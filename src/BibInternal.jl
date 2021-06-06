@@ -1,16 +1,14 @@
 module BibInternal
 
 """
-    abstract type AbstractEntry end
-Abstract Entry supertype.
+Abstract entry supertype.
 """
 abstract type AbstractEntry end
 
 """
-    Fields = Dict{String, String}
-Stores the fields (`name => value`) of an entry.
+`Fields = Dict{String, String}`. Stores the fields `name => value` of an entry.
 """
-Fields = Dict{String, String}
+Fields = Dict{String,String}
 
 # Includes
 include("constant.jl")

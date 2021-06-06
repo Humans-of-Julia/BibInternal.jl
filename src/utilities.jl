@@ -8,7 +8,7 @@ end
 
 """
     get_delete!(fields::Fields, key::String)
-Get a the value of a field and delete it afterward.
+Get the value of a field and delete it afterward.
 """
 function get_delete!(fields::Fields, key::String)
     ans = get(fields, key, "")
