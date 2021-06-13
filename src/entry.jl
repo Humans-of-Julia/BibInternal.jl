@@ -295,3 +295,51 @@ function Entry(id::String, fields::Fields)
     type = get_delete!(fields, "_type")
     return Entry(access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type)
 end
+
+"""
+    Base.isless(a::BibInternal.Date, b::Bibinternal.Date)
+
+Function to check for `a < b` on `BibInternal.Date` data types. This function
+will throw an `ArgumentError` if the `year` is not parse able to `Int`. If it
+is not possible to parse `month` or `day` to `Int` those entries will be
+silently ignored for comparison.
+This function will not check if the date fields are given in a correct format
+those fields are parsed into and compared as `Int` (no checking if date format
+is correct!).
+!!! danger "Note:"
+    The silent ignoring of not parseable `month` or `day` fields will lead to
+    misbehaviour if using comparators like `==` or `!==`!
+"""
+function Base.isless(a::BibInternal.Date,
+                     b::BibInternal.Date)
+    numbers = "0123456789";
+    not_valid_year = isempty(a.year) || isempty(b.year) ||
+                     !issubset(a.year,numbers) || !issubset(b.year,numbers);
+    if not_valid_year; throw(ArgumentError("Unsupported year format!")); end
+    a_y = parse(Int,a.year);
+    b_y = parse(Int,b.year);
+
+    not_valid_month = isempty(a.month) || isempty(b.month) ||
+                      !issubset(a.month,numbers) || !issubset(b.month,numbers);
+    if !not_valid_month
+        a_m = parse(Int,a.month);
+        b_m = parse(Int,b.month);
+    end
+
+    not_valid_day = isempty(a.day) || isempty(b.day) ||
+                    !issubset(a.day,numbers) || !issubset(b.day,numbers);
+    if !not_valid_day
+        a_d = parse(Int,a.day);
+        b_d = parse(Int,b.day);
+    end
+
+    if (a_y == b_y)
+        if not_valid_month
+            return false;
+        else
+            return (a_m == b_m) ? !not_valid_day && a_d < b_d : (a_m < b_m);
+        end
+    else
+        return (a_y < b_y);
+    end
+end
