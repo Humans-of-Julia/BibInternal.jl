@@ -297,21 +297,21 @@ function Entry(id::String, fields::Fields)
 end
 
 """
-    Base.isless(a::BibInternal.Date, b::Bibinternal.Date)
+    Base.isless(a::BibInternal.Date,b::BibInternal.Date)::Bool
 
-Function to check for `a < b` on `BibInternal.Date` data types. This function
-will throw an `ArgumentError` if the `year` is not parse able to `Int`. If it
-is not possible to parse `month` or `day` to `Int` those entries will be
-silently ignored for comparison.
+Function to check for `a < b` on `BibInternal.Date` data types.
+
+This function will throw an `ArgumentError` if the `year` can not parsed into
+`Int`. If it is not possible to parse `month` or `day` to `Int` those entries
+will be silently ignored for comparison.
 This function will not check if the date fields are given in a correct format
-those fields are parsed into and compared as `Int` (no checking if date format
-is correct!).
+all fields are parsed into and compared as `Int` (no checking if date format
+is correct or valid!).
 !!! danger "Note:"
     The silent ignoring of not parseable `month` or `day` fields will lead to
     misbehaviour if using comparators like `==` or `!==`!
 """
-function Base.isless(a::BibInternal.Date,
-                     b::BibInternal.Date)
+function Base.isless(a::BibInternal.Date,b::BibInternal.Date)::Bool
     numbers = "0123456789";
     not_valid_year = isempty(a.year) || isempty(b.year) ||
                      !issubset(a.year,numbers) || !issubset(b.year,numbers);
@@ -341,5 +341,34 @@ function Base.isless(a::BibInternal.Date,
         end
     else
         return (a_y < b_y);
+    end
+end
+
+"""
+    Base.isless(a::BibInternal.Name,b::BibInternal.Name)::Bool
+
+Function to check for `a < b` on `BibInternal.Name` data types.
+
+This function will check the fields `last`, `first` and `middle` in this order
+of priority. The other fields are ignored for now.
+The field comparsion is done by string comparsion no advanced alphabetizing
+rules are used for now.
+!!! danger "Note:"
+    The silent ignoring of the other fields might lead to misbehaviour if using
+    comparators like `==` or `!==`!
+"""
+function Base.isless(a::BibInternal.Name,b::BibInternal.Name)::Bool
+    if (a.last == b.last)
+        if (a.first == b.first)
+            if (a.middle == b.middle)
+                return false;
+            else
+                return (a.middle < b.middle);
+            end
+        else
+            return (a.first < b.first);
+        end
+    else
+        return (a.last < b.last);
     end
 end
