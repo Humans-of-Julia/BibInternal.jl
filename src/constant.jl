@@ -1,4 +1,9 @@
 """
+`Fields = Dict{String, String}`. Stores the fields `name => value` of an entry.
+"""
+const Fields = Dict{String,String}
+
+"""
     const entries = [
         :article,
         :book,

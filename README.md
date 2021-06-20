@@ -9,14 +9,16 @@
 
 This package provides an internal format to translate from/to other bibliographic format.
 
-All entries depend of an abstract supertype `AbstractEntry`.
+All entries depend on an abstract super type `AbstractEntry`.
 One generic entry `GenericEntry` is available to make entries without any specific rules.
 
 Currently, only one set of entries following the BibTeX rules is available. *Required* and *optional* BibTeX fields are checked by the constructor.
 
 Pull Requests to add more entries (or update the BibTeX rules) are welcome.
 
+Discussions are welcome either on this GitHub repository or on the `#modern-academics` channel of [Humans of Julia](https://humansofjulia.org/) (to join the Discord server, please click the `chat` badge above).
+
 ## Packages using BibInternal.jl
 - [BibParser.jl](https://github.com/Humans-of-Julia/BibParser.jl) : A package to parse bibliography files
   - BibParser.BibTEX: an Automa.jl based BibTeX parser
-- [Bibliography.jl](https://github.com/Humans-of-Julia/Bibliography.jl) : A wrapper package to translate from/to different bibliographic formats (currently BibTeX and some web export)
+- [Bibliography.jl](https://github.com/Humans-of-Julia/Bibliography.jl) : A wrapper package to translate from/to different bibliographic formats such as BibTeX, [StaticWebPages.jl](https://github.com/Humans-of-Julia/StaticWebPages.jl), and [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl).
