@@ -22,7 +22,7 @@ Names = Vector{Name}
     Name(str::String)
 Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (optional), `first` `middle` (optional) based on BibTeX possible input. As for BibTeX, the decomposition of a name in the form of `first` `last` is also possible, but ambiguities can occur.
 """
-function Name(str::String)
+function Name(str)
     subnames = map(strip, split(str, r"[\n\r\t ]*,[\n\r\t ]*"; keepempty=false))
 
     # subnames containers
@@ -46,69 +46,49 @@ function Name(str::String)
             mark_in += 1
             for s in aux[2:end-1]
                 mark_in += 1
-                if islowercase(s[1])
-                    break;
-                end
+                islowercase(s[1]) && break
                 middle *= " $s"
             end
             for s in reverse(aux[mark_in:mark_out])
-                if islowercase(s[1])
-                    break;
-                end
+                islowercase(s[1]) && break
                 mark_out -= 1
                 last = "$s " * last
             end
-            for s in aux[mark_in:mark_out]
-                particle *= " $s"
-            end
+            foreach(s -> particle *= " $s", aux[mark_in:mark_out])
         end
     end
+
     # BibTeX form 2: von Last, First Second
     if length(subnames) == 2
         aux = split(subnames[1], r"[\n\r ]+") # von Last
         mark_out = length(aux) - 1
         last = string(aux[end])
         for s in reverse(aux[1:mark_out])
-            if islowercase(s[1])
-                break;
-            end
+            islowercase(s[1]) && break
             mark_out -= 1
             last = "$s " * last
         end
-        for s in aux[1:mark_out]
-            particle *= " $s"
-        end
+        foreach(s -> particle *= " $s", aux[1:mark_out])
         aux = split(subnames[2], r"[\n\r ]+")
         first = aux[1]
-        if length(aux) > 1
-            for s in aux[2:end]
-                middle *= " $s"
-            end
-        end
+        length(aux) > 1 && foreach(s -> middle *= " $s", aux[2:end])
     end
     if length(subnames) == 3
         aux = split(subnames[1], r"[\n\r ]+") # von Last
         mark_out = length(aux) - 1
         last = aux[end]
         for s in reverse(aux[1:mark_out])
-            if islowercase(s[1])
-                break;
-            end
+            islowercase(s[1]) && break
             mark_out -= 1
             last = "$s " * last
         end
-        for s in aux[1:mark_out]
-            particle *= " $s"
-        end
+        foreach(s -> particle *= " $s", aux[1:mark_out])
         junior = subnames[2]
         aux =split(subnames[3], r"[\n\r ]+")
         first = aux[1]
-        if length(aux) > 1
-            for s in aux[2:end]
-                middle *= " $s"
-            end
-        end
+        length(aux) > 1 && foreach(s -> middle *= " $s", aux[2:end])
     end
+
     return Name(particle, last, junior, first, middle)
 end
 
@@ -116,7 +96,7 @@ end
     names(str::String)
 Decompose into parts a list of names in BibTeX compatible format. That is names sparated by `and`.
 """
-function names(str::String)
+function names(str)
     aux = split(str, r"[\n\r ]and[\n\r ]")
     return map(x -> Name(String(x)), aux)
 end
@@ -139,7 +119,7 @@ end
     Access(fields::Fields)
 Construct the online access information based on the entry fields.
 """
-function Access(fields::Fields)
+function Access(fields)
     doi = get_delete!(fields, "doi")
     howpublished = get_delete!(fields, "howpublished")
     url = fields["_type"] == "eprint" ? arxive_url(fields) : get_delete!(fields, "url")
@@ -164,7 +144,7 @@ end
     Date(fields::Fields)
 Construct the date information based on the entry fields.
 """
-function Date(fields::Fields)
+function Date(fields)
     day = get_delete!(fields, "day")
     month = get_delete!(fields, "month")
     year = get_delete!(fields, "year")
@@ -189,7 +169,7 @@ end
     Eprint(fields::Fields)
 Construct the eprint arXiv information based on the entry fields. Handle old and current arXiv format.
 """
-function Eprint(fields::Fields)
+function Eprint(fields)
     archive_prefix = get_delete!(fields, "archivePrefix")
     eprint = get_delete!(fields, "eprint")
     primary_class = get_delete!(fields, "primaryClass")
@@ -232,7 +212,7 @@ end
     In(fields::Fields)
 Construct the information of how an entry was published based on its fields
 """
-function In(fields::Fields)
+function In(fields)
     address = get_delete!(fields, "address")
     chapter = get_delete!(fields, "chapter")
     edition = get_delete!(fields, "edition")
@@ -282,7 +262,7 @@ end
     Entry(id::String, fields::Fields)
 Construct an entry with a unique id and a list of `Fields`.
 """
-function Entry(id::String, fields::Fields)
+function Entry(id, fields)
     # foreach((name, field) -> fields[name] = erase_spaces(field), fields)
     access = Access(fields)
     authors = names(get_delete!(fields, "author"))
@@ -311,37 +291,44 @@ is correct or valid!).
     The silent ignoring of not parseable `month` or `day` fields will lead to
     misbehaviour if using comparators like `==` or `!==`!
 """
-function Base.isless(a::BibInternal.Date,b::BibInternal.Date)::Bool
-    numbers = "0123456789";
-    not_valid_year = isempty(a.year) || isempty(b.year) ||
-                     !issubset(a.year,numbers) || !issubset(b.year,numbers);
-    if not_valid_year; throw(ArgumentError("Unsupported year format!")); end
-    a_y = parse(Int,a.year);
-    b_y = parse(Int,b.year);
+function Base.isless(a::BibInternal.Date,b::BibInternal.Date)
+    numbers = "0123456789" # TODO: use a regexp
 
-    not_valid_month = isempty(a.month) || isempty(b.month) ||
-                      !issubset(a.month,numbers) || !issubset(b.month,numbers);
+    empty_year = isempty(a.year) || isempty(b.year)
+    year_format = !issubset(a.year,numbers) || !issubset(b.year,numbers)
+    not_valid_year = empty_year || year_format
+    not_valid_year && throw(ArgumentError("Unsupported year format!"))
+
+    a_y = parse(Int,a.year)
+    b_y = parse(Int,b.year)
+
+    empty_month = isempty(a.month) || isempty(b.month)
+    month_format = !issubset(a.month,numbers) || !issubset(b.month,numbers)
+    not_valid_month = empty_month || month_format
+
     if !not_valid_month
-        a_m = parse(Int,a.month);
-        b_m = parse(Int,b.month);
+        a_m = parse(Int,a.month)
+        b_m = parse(Int,b.month)
     end
 
-    not_valid_day = isempty(a.day) || isempty(b.day) ||
-                    !issubset(a.day,numbers) || !issubset(b.day,numbers);
+    empty_day = isempty(a.day) || isempty(b.day)
+    day_format = !issubset(a.day,numbers) || !issubset(b.day,numbers)
+    not_valid_day = empty_day || day_format
+
     if !not_valid_day
-        a_d = parse(Int,a.day);
-        b_d = parse(Int,b.day);
+        a_d = parse(Int,a.day)
+        b_d = parse(Int,b.day)
     end
 
-    if (a_y == b_y)
+    if a_y == b_y
         if not_valid_month
-            return false;
+            return false
         else
-            return (a_m == b_m) ? !not_valid_day && a_d < b_d : (a_m < b_m);
+            return a_m == b_m ? !not_valid_day && a_d < b_d : a_m < b_m
         end
-    else
-        return (a_y < b_y);
     end
+
+    return a_y < b_y
 end
 
 """
@@ -357,18 +344,14 @@ rules are used for now.
     The silent ignoring of the other fields might lead to misbehaviour if using
     comparators like `==` or `!==`!
 """
-function Base.isless(a::BibInternal.Name,b::BibInternal.Name)::Bool
-    if (a.last == b.last)
-        if (a.first == b.first)
-            if (a.middle == b.middle)
-                return false;
-            else
-                return (a.middle < b.middle);
-            end
+function Base.isless(a::BibInternal.Name,b::BibInternal.Name)
+    if a.last == b.last
+        if a.first == b.first
+            return a.middle == b.middle ? false : a.middle < b.middle
         else
-            return (a.first < b.first);
+            return a.first < b.first
         end
-    else
-        return (a.last < b.last);
     end
+
+    return a.last < b.last
 end

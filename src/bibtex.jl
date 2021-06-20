@@ -1,4 +1,4 @@
-Required = Union{String,Tuple{String,String}}
+const Required = Union{String,Tuple{String,String}}
 
 """
     const rules = Dict([
@@ -40,10 +40,9 @@ const rules = Dict{String,Vector{Required}}([
     check_entry(fields::Fields)
 Check the validity of the fields of a BibTeX entry.
 """
-function check_entry(
-    fields::Fields
-    )
+function check_entry(fields)
     errors = Vector{String}()
+
     for t_field in rules[get(fields, "_type", "misc")]
         at_least_one = false
         if typeof(t_field) == Tuple{String,String}
@@ -57,11 +56,10 @@ function check_entry(
                 push!(errors, "{" * foldl((x, y) -> "$x≡$y", t_field; init="")[2:end] * "}")
             end
         else
-            if get(fields, t_field, "") == ""
-                push!(errors, t_field)
-            end
+            get(fields, t_field, "") == "" && push!(errors, t_field)
         end
     end
+
     return errors
 end
 
@@ -69,14 +67,9 @@ end
     make_bibtex_entry(id::String, fields::Fields)
 Make an entry if the entry follows the BibTeX guidelines. Throw an error otherwise.
 """
-function make_bibtex_entry(
-    id::String,
-    fields::Fields
-    )
+function make_bibtex_entry(id, fields)
     # @info id fields
-    if "eprint" ∈ keys(fields)
-        fields["_type"] = "eprint"
-    end
+    "eprint" ∈ keys(fields) && (fields["_type"] = "eprint")
     fields = Dict(lowercase(k) => v for (k, v) in fields) # lowercase tag names
     errors = check_entry(fields)
     if length(errors) > 0
