@@ -94,7 +94,7 @@ end
 
 """
     names(str::String)
-Decompose into parts a list of names in BibTeX compatible format. That is names sparated by `and`.
+Decompose into parts a list of names in BibTeX compatible format. That is names separated by `and`.
 """
 function names(str)
     aux = split(str, r"[\n\r ]and[\n\r ]")
@@ -107,7 +107,7 @@ end
         howpublished::String
         url::String
     end
-Store the online access of an entry as a String. Handles the fields `doi` and `url` and the `arXiV` entries. For additional fields or entries, please fill an issue or make a pull request.
+Store the online access of an entry as a String. Handles the fields `doi` and `url` and the `arXiv` entries. For additional fields or entries, please fill an issue or make a pull request.
 """
 struct Access
     doi::String
@@ -338,7 +338,7 @@ Function to check for `a < b` on `BibInternal.Name` data types.
 
 This function will check the fields `last`, `first` and `middle` in this order
 of priority. The other fields are ignored for now.
-The field comparsion is done by string comparsion no advanced alphabetizing
+The field comparison is done by string comparison no advanced alphabetizing
 rules are used for now.
 !!! danger "Note:"
     The silent ignoring of the other fields might lead to misbehaviour if using
