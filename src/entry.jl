@@ -170,9 +170,9 @@ end
 Construct the eprint arXiv information based on the entry fields. Handle old and current arXiv format.
 """
 function Eprint(fields)
-    archive_prefix = get_delete!(fields, "archivePrefix")
+    archive_prefix = get_delete!(fields, "archiveprefix")
     eprint = get_delete!(fields, "eprint")
-    primary_class = get_delete!(fields, "primaryClass")
+    primary_class = get_delete!(fields, "primaryclass")
     Eprint(archive_prefix, eprint, primary_class)
 end
 
