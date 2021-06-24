@@ -23,6 +23,8 @@ const Names = Vector{Name}
 Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (optional), `first` `middle` (optional) based on BibTeX possible input. As for BibTeX, the decomposition of a name in the form of `first` `last` is also possible, but ambiguities can occur.
 """
 function Name(str)
+    @assert !isempty(strip(str))  "Name must not be empty or consist of only whitespace"
+
     # split along commas, then along spaces
     subnames = map(split(str, ","; keepempty=false)) do aux
         return split(aux, r"[\n\r ]+"; keepempty=false)
@@ -104,10 +106,7 @@ end
     names(str::String)
 Decompose into parts a list of names in BibTeX compatible format. That is names separated by `and`.
 """
-function names(str)
-    aux = split(str, r"[\n\r ]and[\n\r ]")
-    return map(x -> Name(String(x)), aux)
-end
+names(str) = map(Name, split(strip(str), r"\s+and\s+"; keepempty = false))
 
 """
     struct Access
