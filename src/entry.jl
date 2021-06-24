@@ -16,7 +16,7 @@ struct Name
     first::String
     middle::String
 end
-Names = Vector{Name}
+const Names = Vector{Name}
 
 """
     Name(str::String)
@@ -25,7 +25,10 @@ Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (
 function Name(str)
     @assert !isempty(strip(str))  "Name must not be empty or consist of only whitespace"
 
-    subnames = map(strip, split(str, r"[\n\r\t ]*,[\n\r\t ]*"; keepempty=false))
+    # split along commas, then along spaces
+    subnames = map(split(str, ","; keepempty=false)) do aux
+        return split(aux, r"[\n\r ]+"; keepempty=false)
+    end
 
     # subnames containers
     first = ""
@@ -40,7 +43,7 @@ function Name(str)
 
     # BibTeX form 1: First Second von Last
     if length(subnames) == 1
-        aux = split(subnames[1], r"[\n\r ]+")
+        aux = subnames[1]
         mark_out = length(aux) - 1
         last = aux[end]
         if length(aux) > 1 && isuppercase(aux[1][1])
@@ -56,27 +59,12 @@ function Name(str)
                 mark_out -= 1
                 last = "$s " * last
             end
-            foreach(s -> particle *= " $s", aux[mark_in:mark_out])
+            particle = join(aux[mark_in:mark_out], " ")
         end
-    end
 
     # BibTeX form 2: von Last, First Second
-    if length(subnames) == 2
-        aux = split(subnames[1], r"[\n\r ]+") # von Last
-        mark_out = length(aux) - 1
-        last = string(aux[end])
-        for s in reverse(aux[1:mark_out])
-            islowercase(s[1]) && break
-            mark_out -= 1
-            last = "$s " * last
-        end
-        foreach(s -> particle *= " $s", aux[1:mark_out])
-        aux = split(subnames[2], r"[\n\r ]+")
-        first = aux[1]
-        length(aux) > 1 && foreach(s -> middle *= " $s", aux[2:end])
-    end
-    if length(subnames) == 3
-        aux = split(subnames[1], r"[\n\r ]+") # von Last
+    elseif length(subnames) == 2
+        aux = subnames[1] # von Last
         mark_out = length(aux) - 1
         last = aux[end]
         for s in reverse(aux[1:mark_out])
@@ -84,11 +72,31 @@ function Name(str)
             mark_out -= 1
             last = "$s " * last
         end
-        foreach(s -> particle *= " $s", aux[1:mark_out])
-        junior = subnames[2]
-        aux =split(subnames[3], r"[\n\r ]+")
+        particle = join(aux[1:mark_out], " ")
+        aux = subnames[end]  # First Second
         first = aux[1]
-        length(aux) > 1 && foreach(s -> middle *= " $s", aux[2:end])
+        middle = join(aux[2:end], " ")
+
+    # BibTeX form 3: von Last, Junior, First Second
+    elseif length(subnames) == 3
+        aux = subnames[1] # von Last
+        mark_out = length(aux) - 1
+        last = aux[end]
+        for s in reverse(aux[1:mark_out])
+            islowercase(s[1]) && break
+            mark_out -= 1
+            last = "$s " * last
+        end
+        particle = join(aux[1:mark_out], " ")
+        junior = subnames[2]
+        aux = subnames[end]  # First Second
+        first = aux[1]
+        middle = join(aux[2:end], " ")
+
+    else
+        # TODO: become more strict here in the future? but beware, right
+        # now this function sometimes gets called with an empty string
+        #error("too many commas in name '$(str)'")
     end
 
     return Name(particle, last, junior, first, middle)
