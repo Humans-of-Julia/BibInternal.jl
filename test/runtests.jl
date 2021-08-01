@@ -49,3 +49,14 @@ end
     @test BibInternal.Name("","Doe","","John","E.") !== BibInternal.Name("","Doe","","John","A.");
 
 end
+
+@testset "Name" begin
+    name = BibInternal.Name("Doe, Jr, Abe Brian")
+    name_expected = BibInternal.Name("", "Doe", "Jr", "Abe", "Brian")
+    @test name == name_expected
+
+    name = BibInternal.Name("Doe, Jr., A. B.")
+    name_expected = BibInternal.Name("", "Doe", "Jr.", "A.", "B.")
+    @test name == name_expected
+
+end

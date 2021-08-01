@@ -88,7 +88,9 @@ function Name(str)
             last = "$s " * last
         end
         particle = join(aux[1:mark_out], " ")
-        junior = subnames[2]
+        aux = subnames[2]
+        @assert length(aux) == 1  "malformed junior subname"
+        junior = aux[1]
         aux = subnames[end]  # First Second
         first = aux[1]
         middle = join(aux[2:end], " ")
