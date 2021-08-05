@@ -19,22 +19,25 @@ const Required = Union{String,Tuple{String,String}}
     ])
 List of BibTeX rules bases on the entry type. A field value as a singleton represents a required field. A pair of values represents mutually exclusive required fields.
 """
-const rules = Dict{String,Vector{Required}}([
-    "article"       => ["author", "journal", "title", "year"]
-    "book"          => [("author", "editor"), "publisher", "title", "year"]
-    "booklet"       => ["title"]
-    "eprint"        => ["author", "eprint", "title", "year"]
-    "inbook"        => [("author", "editor"), ("chapter", "pages"), "publisher", "title", "year"]
-    "incollection"  => ["author", "booktitle", "publisher", "title", "year"]
-    "inproceedings" => ["author", "booktitle", "title", "year"]
-    "manual"        => ["title"]
-    "mastersthesis" => ["author", "school", "title", "year"]
-    "misc"          => []
-    "phdthesis"     => ["author", "school", "title", "year"]
-    "proceedings"   => ["title", "year"]
-    "techreport"    => ["author", "institution", "title", "year"]
-    "unpublished"   => ["author", "note", "title"]
-])
+const rules = Dict{String,Vector{Required}}(
+    [
+        "article" => ["author", "journal", "title", "year"]
+        "book" => [("author", "editor"), "publisher", "title", "year"]
+        "booklet" => ["title"]
+        "eprint" => ["author", "eprint", "title", "year"]
+        "inbook" =>
+            [("author", "editor"), ("chapter", "pages"), "publisher", "title", "year"]
+        "incollection" => ["author", "booktitle", "publisher", "title", "year"]
+        "inproceedings" => ["author", "booktitle", "title", "year"]
+        "manual" => ["title"]
+        "mastersthesis" => ["author", "school", "title", "year"]
+        "misc" => []
+        "phdthesis" => ["author", "school", "title", "year"]
+        "proceedings" => ["title", "year"]
+        "techreport" => ["author", "institution", "title", "year"]
+        "unpublished" => ["author", "note", "title"]
+    ],
+)
 
 """
     check_entry(fields::Fields)
@@ -73,7 +76,11 @@ function make_bibtex_entry(id, fields)
     fields = Dict(lowercase(k) => v for (k, v) in fields) # lowercase tag names
     errors = check_entry(fields)
     if length(errors) > 0
-        error("Entry $id is missing the " * foldl(((x, y) -> x * ", " * y), errors) * " field(s).")
+        error(
+            "Entry $id is missing the " *
+            foldl(((x, y) -> x * ", " * y), errors) *
+            " field(s).",
+        )
     end
     return Entry(id, fields)
 end

@@ -96,7 +96,7 @@ const fields = [
     :title,
     :type,
     :volume,
-    :year
+    :year,
 ]
 
 """
