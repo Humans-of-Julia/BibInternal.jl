@@ -23,7 +23,7 @@ const Names = Vector{Name}
 Decompose without ambiguities a name as `particle` (optional) `last`, `junior` (optional), `first` `middle` (optional) based on BibTeX possible input. As for BibTeX, the decomposition of a name in the form of `first` `last` is also possible, but ambiguities can occur.
 """
 function Name(str)
-    @assert !isempty(strip(str))  "Name must not be empty or consist of only whitespace"
+    @assert !isempty(strip(str)) "Name must not be empty or consist of only whitespace"
 
     # split along commas, then along spaces
     subnames = map(split(str, ","; keepempty=false)) do aux
@@ -49,7 +49,7 @@ function Name(str)
         if length(aux) > 1 && isuppercase(aux[1][1])
             first = aux[1]
             mark_in += 1
-            for s in aux[2:end-1]
+            for s in aux[2:(end - 1)]
                 mark_in += 1
                 islowercase(s[1]) && break
                 middle *= " $s"
@@ -62,7 +62,7 @@ function Name(str)
             particle = join(aux[mark_in:mark_out], " ")
         end
 
-    # BibTeX form 2: von Last, First Second
+        # BibTeX form 2: von Last, First Second
     elseif length(subnames) == 2
         aux = subnames[1] # von Last
         mark_out = length(aux) - 1
@@ -77,7 +77,7 @@ function Name(str)
         first = aux[1]
         middle = join(aux[2:end], " ")
 
-    # BibTeX form 3: von Last, Junior, First Second
+        # BibTeX form 3: von Last, Junior, First Second
     elseif length(subnames) == 3
         aux = subnames[1] # von Last
         mark_out = length(aux) - 1
@@ -108,7 +108,7 @@ end
     names(str::String)
 Decompose into parts a list of names in BibTeX compatible format. That is names separated by `and`.
 """
-names(str) = map(Name, split(strip(str), r"\s+and\s+"; keepempty = false))
+names(str) = map(Name, split(strip(str), r"\s+and\s+"; keepempty=false))
 
 """
     struct Access
@@ -132,7 +132,7 @@ function Access(fields)
     doi = get_delete!(fields, "doi")
     howpublished = get_delete!(fields, "howpublished")
     url = fields["_type"] == "eprint" ? arxive_url(fields) : get_delete!(fields, "url")
-    Access(doi, howpublished, url)
+    return Access(doi, howpublished, url)
 end
 
 """
@@ -157,7 +157,7 @@ function Date(fields)
     day = get_delete!(fields, "day")
     month = get_delete!(fields, "month")
     year = get_delete!(fields, "year")
-    Date(day, month, year)
+    return Date(day, month, year)
 end
 
 """
@@ -182,7 +182,7 @@ function Eprint(fields)
     archive_prefix = get_delete!(fields, "archiveprefix")
     eprint = get_delete!(fields, "eprint")
     primary_class = get_delete!(fields, "primaryclass")
-    Eprint(archive_prefix, eprint, primary_class)
+    return Eprint(archive_prefix, eprint, primary_class)
 end
 
 """
@@ -234,7 +234,20 @@ function In(fields)
     school = get_delete!(fields, "school")
     series = get_delete!(fields, "series")
     volume = get_delete!(fields, "volume")
-    In(address, chapter, edition, institution, journal, number, organization, pages, publisher, school, series, volume)
+    return In(
+        address,
+        chapter,
+        edition,
+        institution,
+        journal,
+        number,
+        organization,
+        pages,
+        publisher,
+        school,
+        series,
+        volume,
+    )
 end
 
 """
@@ -282,7 +295,9 @@ function Entry(id, fields)
     in_ = In(fields)
     title = get_delete!(fields, "title")
     type = get_delete!(fields, "_type")
-    return Entry(access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type)
+    return Entry(
+        access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type
+    )
 end
 
 """
@@ -300,33 +315,33 @@ is correct or valid!).
     The silent ignoring of not parseable `month` or `day` fields will lead to
     misbehaviour if using comparators like `==` or `!==`!
 """
-function Base.isless(a::BibInternal.Date,b::BibInternal.Date)
+function Base.isless(a::BibInternal.Date, b::BibInternal.Date)
     numbers = "0123456789" # TODO: use a regexp
 
     empty_year = isempty(a.year) || isempty(b.year)
-    year_format = !issubset(a.year,numbers) || !issubset(b.year,numbers)
+    year_format = !issubset(a.year, numbers) || !issubset(b.year, numbers)
     not_valid_year = empty_year || year_format
     not_valid_year && throw(ArgumentError("Unsupported year format!"))
 
-    a_y = parse(Int,a.year)
-    b_y = parse(Int,b.year)
+    a_y = parse(Int, a.year)
+    b_y = parse(Int, b.year)
 
     empty_month = isempty(a.month) || isempty(b.month)
-    month_format = !issubset(a.month,numbers) || !issubset(b.month,numbers)
+    month_format = !issubset(a.month, numbers) || !issubset(b.month, numbers)
     not_valid_month = empty_month || month_format
 
     if !not_valid_month
-        a_m = parse(Int,a.month)
-        b_m = parse(Int,b.month)
+        a_m = parse(Int, a.month)
+        b_m = parse(Int, b.month)
     end
 
     empty_day = isempty(a.day) || isempty(b.day)
-    day_format = !issubset(a.day,numbers) || !issubset(b.day,numbers)
+    day_format = !issubset(a.day, numbers) || !issubset(b.day, numbers)
     not_valid_day = empty_day || day_format
 
     if !not_valid_day
-        a_d = parse(Int,a.day)
-        b_d = parse(Int,b.day)
+        a_d = parse(Int, a.day)
+        b_d = parse(Int, b.day)
     end
 
     if a_y == b_y
@@ -353,7 +368,7 @@ rules are used for now.
     The silent ignoring of the other fields might lead to misbehaviour if using
     comparators like `==` or `!==`!
 """
-function Base.isless(a::BibInternal.Name,b::BibInternal.Name)
+function Base.isless(a::BibInternal.Name, b::BibInternal.Name)
     if a.last == b.last
         if a.first == b.first
             return a.middle == b.middle ? false : a.middle < b.middle
