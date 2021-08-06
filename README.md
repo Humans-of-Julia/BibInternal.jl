@@ -9,6 +9,8 @@
 
 This package provides an internal format to translate from/to other bibliographic format.
 
+**!Warning** The support for this package will move to Julia LTS once the next LTS release is available.
+
 All entries depend on an abstract super type `AbstractEntry`.
 One generic entry `GenericEntry` is available to make entries without any specific rules.
 
