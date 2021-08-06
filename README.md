@@ -20,5 +20,4 @@ Discussions are welcome either on this GitHub repository or on the `#modern-acad
 
 ## Packages using BibInternal.jl
 - [BibParser.jl](https://github.com/Humans-of-Julia/BibParser.jl) : A package to parse bibliography files
-  - BibParser.BibTEX: an Automa.jl based BibTeX parser
 - [Bibliography.jl](https://github.com/Humans-of-Julia/Bibliography.jl) : A wrapper package to translate from/to different bibliographic formats such as BibTeX, [StaticWebPages.jl](https://github.com/Humans-of-Julia/StaticWebPages.jl), and [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl).
