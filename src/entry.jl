@@ -89,7 +89,7 @@ function Name(str)
         end
         particle = join(aux[1:mark_out], " ")
         aux = subnames[2]
-        @assert length(aux) == 1  "malformed junior subname"
+        @assert length(aux) == 1 "malformed junior subname"
         junior = aux[1]
         aux = subnames[end]  # First Second
         first = aux[1]
