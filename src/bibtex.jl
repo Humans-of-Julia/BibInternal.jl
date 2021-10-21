@@ -43,10 +43,18 @@ const rules = Dict{String,Vector{Required}}(
     check_entry(fields::Fields)
 Check the validity of the fields of a BibTeX entry.
 """
-function check_entry(fields)
+function check_entry(fields, check, id)
     errors = Vector{String}()
 
-    for t_field in rules[get(fields, "_type", "misc")]
+    entry_type = get(fields, "_type", "misc")
+    if entry_type ∉ keys(rules)
+        if check ∈ [:error, :warn]
+            @warn """KeyError: key "software" not found in BibTeX rules, parsed from the entry `$id` with""" fields
+        end
+        check == :error && throw(KeyError(entry_type))
+    end
+
+    for t_field in get(rules, entry_type, Vector{Required}())
         at_least_one = false
         if typeof(t_field) == Tuple{String,String}
             for field in t_field
@@ -70,17 +78,17 @@ end
     make_bibtex_entry(id::String, fields::Fields)
 Make an entry if the entry follows the BibTeX guidelines. Throw an error otherwise.
 """
-function make_bibtex_entry(id, fields)
+function make_bibtex_entry(id, fields; check=:error)
     # @info id fields
     "eprint" ∈ keys(fields) && (fields["_type"] = "eprint")
     fields = Dict(lowercase(k) => v for (k, v) in fields) # lowercase tag names
-    errors = check_entry(fields)
-    if length(errors) > 0
-        error(
+    errors = check_entry(fields, check, id)
+    if length(errors) > 0 && check ∈ [:error, :warn]
+        message =
             "Entry $id is missing the " *
             foldl(((x, y) -> x * ", " * y), errors) *
-            " field(s).",
-        )
+            " field(s)."
+        check == :error ? (@error message) : (@warn message)
     end
     return Entry(id, fields)
 end
