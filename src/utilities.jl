@@ -2,7 +2,7 @@
     space(field::Symbol)
 Return the amount of spaces needed to export entries, for instance to BibTeX format.
 """
-space(field) = maxfieldlength - length(string(field))
+space(field) = max(maxfieldlength - length(string(field)), 0)
 
 """
     get_delete!(fields::Fields, key::String)
