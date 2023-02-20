@@ -21,7 +21,7 @@ const Fields = Dict{String,String}
     ]
 List of possible entries (currently based on bibtex). Keep it sorted for readability.
 """
-const entries = [
+const BIBTEX_ENTRIES = [
     :article,
     :book,
     :booklet,
@@ -35,6 +35,37 @@ const entries = [
     :proceedings,
     :techreport,
     :unpublished,
+]
+
+const BIBLATEX_ENRTIES = [
+    :article,
+    :book,
+    :bookinbook,
+    :booklet,
+    :collection,
+    :inbook,
+    :incollection,
+    :inproceedings,
+    :inreference,
+    :manual,
+    :misc,
+    :mvbook,
+    :mvcollection,
+    :mvproceedings,
+    :mvreference,
+    :online,
+    :patent,
+    :periodical,
+    :proceedings,
+    :reference,
+    :report,
+    :set,
+    :suppbook,
+    :suppcollection,
+    :suppperiodical,
+    :thesis,
+    :unpublished,
+    :xdata,
 ]
 
 """
@@ -69,7 +100,7 @@ const entries = [
     ]
 List of possible fields (currently based on bibtex). Keep it sorted for readability
 """
-const fields = [
+const BIBTEX_FIELDS = [
     :address,
     :annote,
     :archivePrefix,
@@ -99,8 +130,38 @@ const fields = [
     :year,
 ]
 
+const BIBLATEX_FIELDS = [
+    :authors,
+    :afterword,
+    :annotator,
+    :bookauthor,
+    :booktitle,
+    :commentator,
+    :editor,
+    :editora,
+    :editorb,
+    :editorc,
+    :eventtitle,
+    :forward,
+    :holder,
+    :indextitle,
+    :institution,
+    :introduction,
+    :issuetitle,
+    :journaltitle,
+    :maintitle,
+    :organization,
+    :publisher,
+    :reprinttitle,
+    :series,
+    :title,
+    :translator,
+]
+
+const FIELDS = union!(BIBTEX_FIELDS, BIBLATEX_FIELDS)
+
 """
     const maxfieldlength
 For output formatting purpose, for instance, export to BibTeX format.
 """
-const maxfieldlength = maximum(map(s -> length(string(s)), fields))
+const MAX_FIELD_LENGTH = maximum(map(s -> length(string(s)), FIELDS))
