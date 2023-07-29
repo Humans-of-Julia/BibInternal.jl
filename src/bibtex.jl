@@ -80,7 +80,6 @@ Make an entry if the entry follows the BibTeX guidelines. Throw an error otherwi
 """
 function make_bibtex_entry(id, fields; check=:error)
     # @info id fields
-    "eprint" ∈ keys(fields) && (fields["_type"] = "eprint")
     fields = Dict(lowercase(k) => v for (k, v) in fields) # lowercase tag names
     errors = check_entry(fields, check, id)
     if length(errors) > 0 && check ∈ [:error, :warn]
