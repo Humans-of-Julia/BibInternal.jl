@@ -64,7 +64,10 @@ function check_entry(fields, check, id)
                 end
             end
             if !at_least_one
-                push!(errors, "{" * foldl((x, y) -> "$x≡$y", t_field; init="")[2:end] * "}")
+                s = foldl((x, y) -> "$x≡$y", t_field; init="")
+                # To remove the starting `≡`, we need `nextind` as it is a
+                # multibyte character
+                push!(errors, "{" * s[nextind(s, 1):end] * "}")
             end
         else
             get(fields, t_field, "") == "" && push!(errors, t_field)
