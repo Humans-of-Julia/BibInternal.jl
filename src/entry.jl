@@ -314,7 +314,6 @@ function Entry(id, fields)
     title = get_delete!(fields, "title")
     type = get_delete!(fields, "_type")
     return Entry(
-        # access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type
         access, authors, booktitle, date, editors, eprint, id, in_, fields, note, title, type
     )
 end
