@@ -290,7 +290,7 @@ struct Entry <: AbstractEntry
     eprint::Eprint
     id::String
     in::In
-    fields::Dict{String,String}
+    fields::Dict{String, String}
     note::String
     title::String
     type::String
