@@ -25,8 +25,37 @@ const entries = [
 ]
 
 """
-    const fields
-
+    const fields = [
+        :address,
+        :annote,
+        :archivePrefix,
+        :author,
+        :booktitle,
+        :chapter,
+        :crossref,
+        :edition,
+        :editor,
+        :eprint,
+        :howpublished,
+        :institution,
+        :isbn,
+        :issn,
+        :journal,
+        :key,
+        :month,
+        :note,
+        :number,
+        :organization,
+        :pages,
+        :primaryClass,
+        :publisher,
+        :school,
+        :series,
+        :title,
+        :type,
+        :volume,
+        :year
+    ]
 List of possible fields (currently based on bibtex). Keep it sorted for readability
 """
 const fields = [
@@ -42,6 +71,8 @@ const fields = [
     :eprint,
     :howpublished,
     :institution,
+    :isbn,
+    :issn,
     :journal,
     :key,
     :month,

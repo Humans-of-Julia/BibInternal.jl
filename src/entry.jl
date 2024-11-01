@@ -197,6 +197,8 @@ end
         chapter::String
         edition::String
         institution::String
+        isbn::String
+        issn:String
         journal::String
         number::String
         organization::String
@@ -213,6 +215,8 @@ struct In
     chapter::String
     edition::String
     institution::String
+    isbn::String
+    issn::String
     journal::String
     number::String
     organization::String
@@ -232,6 +236,8 @@ function In(fields)
     chapter = get_delete!(fields, "chapter")
     edition = get_delete!(fields, "edition")
     institution = get_delete!(fields, "institution")
+    isbn = get_delete!(fields, "isbn")
+    issn = get_delete!(fields, "issn")
     journal = get_delete!(fields, "journal")
     number = get_delete!(fields, "number")
     organization = get_delete!(fields, "organization")
@@ -245,6 +251,8 @@ function In(fields)
         chapter,
         edition,
         institution,
+        isbn,
+        issn,
         journal,
         number,
         organization,
@@ -267,6 +275,7 @@ end
         id::String
         in::In
         fields::Dict{String,String}
+        note::String
         title::String
         type::String
     end
@@ -281,7 +290,8 @@ struct Entry <: AbstractEntry
     eprint::Eprint
     id::String
     in::In
-    fields::Dict{String, String}
+    fields::Dict{String,String}
+    note::String
     title::String
     type::String
 end
@@ -299,10 +309,11 @@ function Entry(id, fields)
     editors = names(get_delete!(fields, "editor"))
     eprint = Eprint(fields)
     in_ = In(fields)
+    note = get_delete!(fields, "note")
     title = get_delete!(fields, "title")
     type = get_delete!(fields, "_type")
     return Entry(
-        access, authors, booktitle, date, editors, eprint, id, in_, fields, title, type
+        access, authors, booktitle, date, editors, eprint, id, in_, fields, note, title, type
     )
 end
 
