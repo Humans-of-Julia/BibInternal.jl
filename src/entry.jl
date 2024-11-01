@@ -38,8 +38,8 @@ function Name(str)
     else
 
         # split along commas, then along spaces
-        subnames = map(split(str, ","; keepempty=false)) do aux
-            return split(aux, r"[\n\r ]+"; keepempty=false)
+        subnames = map(split(str, ","; keepempty = false)) do aux
+            return split(aux, r"[\n\r ]+"; keepempty = false)
         end
 
         # mark for string parsing
@@ -54,7 +54,7 @@ function Name(str)
             if length(aux) > 1 && isuppercase(aux[1][1])
                 first = aux[1]
                 mark_in += 1
-                for s in aux[2:(end-1)]
+                for s in aux[2:(end - 1)]
                     mark_in += 1
                     islowercase(s[1]) && break
                     middle *= " $s"
@@ -94,7 +94,7 @@ function Name(str)
             end
             particle = join(aux[1:mark_out], " ")
             aux = subnames[2]
-            @assert length(aux) == 1 "malformed junior subname"
+            @assert length(aux)==1 "malformed junior subname"
             junior = aux[1]
             aux = subnames[end]  # First Second
             first = aux[1]
@@ -105,7 +105,6 @@ function Name(str)
             # now this function sometimes gets called with an empty string
             #error("too many commas in name '$(str)'")
         end
-
     end
 
     return Name(particle, last, junior, first, middle)
@@ -115,7 +114,7 @@ end
     names(str::String)
 Decompose into parts a list of names in BibTeX compatible format. That is names separated by `and`.
 """
-names(str) = map(Name, split(strip(str), r"\s+and\s+"; keepempty=false))
+names(str) = map(Name, split(strip(str), r"\s+and\s+"; keepempty = false))
 
 """
     struct Access
@@ -261,7 +260,7 @@ function In(fields)
         publisher,
         school,
         series,
-        volume,
+        volume
     )
 end
 
@@ -291,7 +290,7 @@ struct Entry <: AbstractEntry
     eprint::Eprint
     id::String
     in::In
-    fields::Dict{String,String}
+    fields::Dict{String, String}
     note::String
     title::String
     type::String
@@ -396,4 +395,89 @@ function Base.isless(a::BibInternal.Name, b::BibInternal.Name)
     end
 
     return a.last < b.last
+end
+
+@testitem "Sorting" tags=[:sorting] begin
+    import BibInternal
+    @testset "isless() for BibInternal.Date" begin
+        @test BibInternal.Date("", "", "2000") < BibInternal.Date("", "", "2001")
+        @test BibInternal.Date("", "10", "2000") < BibInternal.Date("", "11", "2000")
+        @test BibInternal.Date("5", "01", "2000") < BibInternal.Date("15", "01", "2000")
+
+        @test BibInternal.Date("", "", "1970") > BibInternal.Date("", "", "1969")
+        @test BibInternal.Date("", "7", "1970") > BibInternal.Date("", "6", "1970")
+        @test BibInternal.Date("7", "7", "1970") > BibInternal.Date("6", "7", "1970")
+
+        @test BibInternal.Date("", "", "1805") == BibInternal.Date("", "", "1805")
+        @test BibInternal.Date("", "4", "1805") == BibInternal.Date("", "4", "1805")
+        @test BibInternal.Date("3", "4", "1805") == BibInternal.Date("3", "4", "1805")
+
+        @test BibInternal.Date("", "", "1805") !== BibInternal.Date("", "", "1905")
+        @test BibInternal.Date("", "4", "1805") !== BibInternal.Date("", "5", "1805")
+        @test BibInternal.Date("3", "4", "1805") !== BibInternal.Date("4", "4", "1805")
+
+        @test_skip BibInternal.Date("", "May", "1805") == BibInternal.Date("", "5", "1805")
+        @test_skip BibInternal.Date("1th", "5", "1805") !==
+                   BibInternal.Date("1", "5", "1805")
+
+        @test_throws ArgumentError BibInternal.Date(
+            "", "", "1")<
+        BibInternal.Date("", "", "2000a")
+        @test_throws ArgumentError BibInternal.Date(
+            "", "", "1")<BibInternal.Date("", "", "")
+        @test_throws ArgumentError BibInternal.Date(
+            "", "", "1")<
+        BibInternal.Date("", "", "90ies")
+        @test_throws ArgumentError BibInternal.Date(
+            "", "", "40k")<
+        BibInternal.Date("", "", "40000")
+    end
+
+    @testset "isless() for BibInternal.Name" begin
+        # TODO: consider testing for alphabetizing rules
+
+        @test BibInternal.Name("", "Cow", "", "John", "") <
+              BibInternal.Name("", "Doe", "", "John", "")
+        @test BibInternal.Name("", "Doe", "", "John", "A.") <
+              BibInternal.Name("", "Doe", "", "John", "B.")
+        @test BibInternal.Name("", "Doe", "", "Bronn", "") <
+              BibInternal.Name("", "Doe", "", "John", "")
+        @test BibInternal.Name("", "Bronn", "", "Would", "") <
+              BibInternal.Name("", "Bronn", "", "Would", "Not")
+
+        @test BibInternal.Name("", "Doe", "", "John", "") ==
+              BibInternal.Name("", "Doe", "", "John", "")
+        @test BibInternal.Name("", "Doe", "jun.", "John", "") ==
+              BibInternal.Name("", "Doe", "jun.", "John", "")
+        @test BibInternal.Name("", "Doe", "", "John", "E.") ==
+              BibInternal.Name("", "Doe", "", "John", "E.")
+
+        @test BibInternal.Name("", "Doe", "", "Bronn", "") !==
+              BibInternal.Name("", "Doe", "", "John", "")
+        @test BibInternal.Name("", "Doe", "jun.", "John", "") !==
+              BibInternal.Name("", "Doe", "sen.", "John", "")
+        @test BibInternal.Name("", "Doe", "", "John", "E.") !==
+              BibInternal.Name("", "Doe", "", "John", "A.")
+    end
+end
+
+@testitem "Parsing" tags=[:parsing] begin
+    import BibInternal
+
+    @testset "junior parsing for BibInternal.Name" begin
+        name = BibInternal.Name("Doe, Jr, Abe Brian")
+        name_expected = BibInternal.Name("", "Doe", "Jr", "Abe", "Brian")
+        @test name == name_expected
+
+        name = BibInternal.Name("Doe, Jr., A. B.")
+        name_expected = BibInternal.Name("", "Doe", "Jr.", "A.", "B.")
+        @test name == name_expected
+
+        # If no comma is used between the last name and junior, the junior should be
+        # combined with the last name
+        # (https://nwalsh.com/tex/texhelp/bibtx-23.html).
+        name = BibInternal.Name("Doe Jr., A. B.")
+        name_expected = BibInternal.Name("", "Doe Jr.", "", "A.", "B.")
+        @test name == name_expected
+    end
 end
