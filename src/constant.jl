@@ -4,21 +4,8 @@
 const Fields = Dict{String, String}
 
 """
-    const entries = [
-        :article,
-        :book,
-        :booklet,
-        :inbook,
-        :incollection,
-        :inproceedings,
-        :manual,
-        :mastersthesis,
-        :misc,
-        :phdthesis,
-        :proceedings,
-        :techreport,
-        :unpublished,
-    ]
+    const entries
+
 List of possible entries (currently based on bibtex). Keep it sorted for readability.
 """
 const entries = [
@@ -38,35 +25,8 @@ const entries = [
 ]
 
 """
-    const fields = [
-        :address,
-        :annote,
-        :archivePrefix,
-        :author,
-        :booktitle,
-        :chapter,
-        :crossref,
-        :edition,
-        :editor,
-        :eprint,
-        :howpublished,
-        :institution,
-        :journal,
-        :key,
-        :month,
-        :note,
-        :number,
-        :organization,
-        :pages,
-        :primaryClass,
-        :publisher,
-        :school,
-        :series,
-        :title,
-        :type,
-        :volume,
-        :year
-    ]
+    const fields
+
 List of possible fields (currently based on bibtex). Keep it sorted for readability
 """
 const fields = [
